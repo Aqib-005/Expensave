@@ -1,0 +1,24 @@
+{
+  "name": "expensave",
+  "version": "1.0.0",
+  "description": "A financial web app to track and manage spending",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"cd backend && node server.js\" \"cd frontend && npm run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aqib-005/Expensave.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Aqib-005/Expensave/issues"
+  },
+  "homepage": "https://github.com/Aqib-005/Expensave#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}
