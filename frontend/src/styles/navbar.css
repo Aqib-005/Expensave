@@ -1,0 +1,35 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+}
+
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  margin-left: 1rem;
+  font-weight: 500;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+.navbar-logo {
+  height: auto;
+  width: 35%;
+  object-fit: contain;
+  margin-right: 10px;
+}
+
+.nav-directories {
+  display: flex;
+  align-items: center;
+}
