@@ -1,0 +1,97 @@
+.login-content {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #4e54c8, #8f94fb);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  color: #333;
+  padding: 1rem;
+}
+
+.login-form {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.login-intro {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.form-text label {
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.form-text input {
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition:
+    border 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.form-text input:focus {
+  outline: none;
+  border-color: #4e54c8;
+  box-shadow: 0px 0px 5px rgba(78, 84, 200, 0.4);
+}
+
+button.submit {
+  padding: 0.8rem;
+  background: #4e54c8;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button.submit:hover {
+  background: #3d42a8;
+  transform: translateY(-2px);
+}
+
+button.submit:active {
+  transform: translateY(0);
+}
+
+.new-user {
+  margin-top: 1.2rem;
+  font-size: 0.95rem;
+  color: #000000;
+  text-align: center;
+}
+
+.new-user a {
+  color: #ffeb3b;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.new-user a:hover {
+  text-decoration: underline;
+}

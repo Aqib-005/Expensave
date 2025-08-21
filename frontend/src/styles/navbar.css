@@ -10,6 +10,8 @@
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(8px);
   z-index: 1000;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .navbar a {
@@ -22,11 +24,11 @@
 .navbar a:hover {
   text-decoration: underline;
 }
+
 .navbar-logo {
   height: auto;
-  width: 35%;
+  max-width: 150px;
   object-fit: contain;
-  margin-right: 10px;
 }
 
 .nav-directories {

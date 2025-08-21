@@ -4,11 +4,11 @@ import "../styles/navbar.css"
 function Navbar() {
   return (
     <nav className="navbar">
-      <a className="nav-logo" herf="/">Logo
+      <a className="nav-logo" href="/">Logo
       </a>
       <div className="nav-directories">
-        <a className="nav-link" herf="/dashboard"> Dashboard </a>
-        <a className="nav-link" herf="/login"> Log-in </a>
+        <a className="nav-link" href="/dashboard"> Dashboard </a>
+        <a className="nav-link" href="/login"> Log-in </a>
       </div>
     </nav>
   )
