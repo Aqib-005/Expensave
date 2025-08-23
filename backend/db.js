@@ -4,7 +4,6 @@ dotenv.config();
 
 const { Pool } = pkg;
 
-console.log("DATABASE_URL:", process.env.DATABASE_URL);
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl:
@@ -13,15 +12,8 @@ const pool = new Pool({
       : false,
 });
 
-// Test connection
-(async () => {
-  try {
-    const client = await pool.connect();
-    console.log("Connected to PostgreSQL");
-    client.release();
-  } catch (err) {
-    console.error("Failed to connect to PostgreSQL", err);
-  }
-})();
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle client", err);
+});
 
 export default pool;

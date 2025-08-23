@@ -9,6 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 //sign-up
 router.post("/signup", async (req, res) => {
+  console.log("Signup request body:", req.body);
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -19,7 +20,7 @@ router.post("/signup", async (req, res) => {
   try {
     const hash = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      "INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING userID, email",
+      'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING "userID", email',
       [name, email, hash],
     );
     res.status(201).json(result.rows[0]);
@@ -51,7 +52,7 @@ router.post("/login", async (req, res) => {
 
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await pool.query(
-      "INSERT INTO sessions (userID, token, expires_at) VALUES ($1, $2, $3)",
+      'INSERT INTO sessions ("userID", token, expires_at) VALUES ($1, $2, $3)',
       [user.userID, token, expiresAt],
     );
 
