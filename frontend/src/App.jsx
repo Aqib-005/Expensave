@@ -4,20 +4,23 @@ import HomePage from './components/HomePage.jsx'
 import Navbar from './components/Navbar.jsx'
 import Login from './components/Login.jsx'
 import Signup from './components/Signup.jsx'
+import { AuthProvider } from './components/AuthContext.jsx'
 
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path='/signup' element={<Signup />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path='/signup' element={<Signup />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

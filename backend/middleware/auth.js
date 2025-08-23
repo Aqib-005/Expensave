@@ -18,8 +18,8 @@ export async function authenticateToken(req, res, next) {
     if (result.rows.length === 0) {
       return res.status(403).json({ error: "Session expired or invalid" });
     }
-
-    req.user = { userID: decoded.userID }; // match your schema
+    console.log("Decoded JWT:", decoded);
+    req.user = { id: decoded.userID };
     next();
   } catch (err) {
     console.error(err);
