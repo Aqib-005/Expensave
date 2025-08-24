@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import pool from "./db.js";
 import { authenticateToken } from "./middleware/auth.js";
+import passport from "passport";
+import "./passport.js";
 
 const router = express.Router();
 
@@ -27,7 +29,7 @@ router.post("/signup", async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(400).json({ error: "User already exists or bad request" });
+    res.status(400).json({ error: "User already exists " });
   }
 });
 
@@ -98,5 +100,28 @@ router.get("/me", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch user" });
   }
 });
+
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false,
+  }),
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { session: false }),
+  (req, res) => {
+    res.cookie("token", req.user.jwt, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      maxAge: 60 * 60 * 1000,
+    });
+
+    res.redirect("http://localhost:5173/dashboard");
+  },
+);
 
 export default router;

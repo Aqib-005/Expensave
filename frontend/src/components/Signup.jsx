@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/signup.css";
+import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -34,7 +36,7 @@ function Signup() {
       const response = await fetch("http://localhost:3000/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // important for cookies
+        credentials: "include",
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
@@ -49,7 +51,7 @@ function Signup() {
       }
 
       alert("Signup successful! You can now log in.");
-      navigate("/login"); // redirect after signup
+      navigate("/login");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -116,8 +118,20 @@ function Signup() {
           {loading ? "Creating account..." : "Submit"}
         </button>
 
+        <div className="social-login">
+          <a className="social-button social-google" href="http://localhost:3000/auth/google">
+            <FcGoogle size={20} />
+            Google
+          </a>
+
+          <a className="social-button social-github" href="http://localhost:3000/auth/github">
+            <FaGithub size={20} />
+            GitHub
+          </a>
+        </div>
+
         <div className="old-user">
-          Already have an account? <a href="/login">Log in here</a>
+          Already have an account? <a href="/login">Log in </a>
         </div>
       </form>
     </div>

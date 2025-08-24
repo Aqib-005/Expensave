@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../styles/login.css';
+import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -59,8 +61,20 @@ function Login() {
         </div>
         <button className="submit" type="submit">Submit</button>
 
+        <div className="social-login">
+          <a className="social-button social-google" href="http://localhost:3000/auth/google">
+            <FcGoogle size={20} />
+            Google
+          </a>
+
+          <a className="social-button social-github" href="http://localhost:3000/auth/github">
+            <FaGithub size={20} />
+            GitHub
+          </a>
+        </div>
+
         <div className="new-user">
-          Don't have an account? Sign up <a href="/signup">here</a>
+          Don't have an account? <a href="/signup">Sign-Up</a>
         </div>
       </form>
     </div>

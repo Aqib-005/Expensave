@@ -20,5 +20,10 @@
   "homepage": "https://github.com/Aqib-005/Expensave#readme",
   "devDependencies": {
     "concurrently": "^9.2.0"
+  },
+  "dependencies": {
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-google-oidc": "^0.1.0"
   }
 }
