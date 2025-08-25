@@ -6,6 +6,7 @@ import Login from './components/Login.jsx'
 import Signup from './components/Signup.jsx'
 import { AuthProvider } from './components/AuthContext.jsx'
 import ResetPassword from './components/ResetPassword.jsx'
+import ForgotPassword from './components/ForgotPassword.jsx'
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path='/signup' element={<Signup />} />
           <Route path='/resetpassword' element={<ResetPassword />} />
+          <Route path='/forgotpassword' element={<ForgotPassword />} />
         </Routes>
       </Router>
     </AuthProvider>
