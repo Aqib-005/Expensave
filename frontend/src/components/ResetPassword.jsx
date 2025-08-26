@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import '../styles/resetpassword.css';
 
 function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -11,10 +12,20 @@ function ResetPassword() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const validatePassword = (pwd) => {
+    const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return strongRegex.test(pwd);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirm) {
       setMessage("Passwords do not match.");
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setMessage("Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
       return;
     }
 
@@ -49,19 +60,16 @@ function ResetPassword() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-2xl p-8 w-96"
-      >
-        <h2 className="text-xl font-bold mb-4">Reset Password</h2>
+    <div className="reset-container">
+      <form onSubmit={handleSubmit} className="reset-card">
+        <h2>Reset Password</h2>
         <input
           type="password"
           placeholder="New password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full p-2 mb-3 border rounded"
+          className="reset-input"
         />
         <input
           type="password"
@@ -69,16 +77,12 @@ function ResetPassword() {
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           required
-          className="w-full p-2 mb-4 border rounded"
+          className="reset-input"
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
-        >
+        <button type="submit" disabled={loading} className="reset-btn">
           {loading ? "Resetting..." : "Reset Password"}
         </button>
-        {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
+        {message && <p className="reset-message">{message}</p>}
       </form>
     </div>
   );

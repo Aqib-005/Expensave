@@ -4,13 +4,20 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import pool from "./db.js";
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 import { authenticateToken } from "./middleware/auth.js";
 import passport from "passport";
 import "./passport.js";
 
 const router = express.Router();
-
+dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+
+function isStrongPassword(password) {
+  const strongRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return strongRegex.test(password);
+}
 
 //sign-up
 router.post("/signup", async (req, res) => {
@@ -20,6 +27,13 @@ router.post("/signup", async (req, res) => {
   if (!name || !email || !password) {
     res.status(400).json({ error: "Form needs to be filled correctly" });
     return;
+  }
+
+  if (!isStrongPassword(password)) {
+    return res.status(400).json({
+      error:
+        "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.",
+    });
   }
 
   try {
@@ -128,14 +142,14 @@ router.post("/forgotpassword", async (req, res) => {
 
     // generate reset token
     const token = crypto.randomBytes(32).toString("hex");
-    const expires = new Date(Date.now() + 60 * 60 * 1000);
+    const expires = new Date(Date.now() + 10 * 60 * 1000);
 
     await pool.query(
       "INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)",
       [user.userID, token, expires],
     );
 
-    const resetLink = `http://localhost:5173/reset-password?token=${token}`;
+    const resetLink = `http://localhost:5173/resetpassword?token=${token}`;
 
     await transporter.sendMail({
       from: `"Expensave Support" <${process.env.EMAIL_USER}>`,
@@ -156,7 +170,7 @@ router.post("/forgotpassword", async (req, res) => {
   }
 });
 
-// Reset passworbbd
+// Reset password
 router.post("/resetpassword", async (req, res) => {
   const { token, password } = req.body;
 
@@ -165,8 +179,17 @@ router.post("/resetpassword", async (req, res) => {
     [token],
   );
 
+  if (!isStrongPassword(password)) {
+    return res.status(400).json({
+      error:
+        "Password be at least 8 characters long and include uppercase, lowercase, number, and special character.",
+    });
+  }
+
   if (resetResult.rows.length === 0) {
-    return res.status(400).json({ error: "Invalid or expired token" });
+    return res.status(400).json({
+      error: "The session has expired please resend a new reset email",
+    });
   }
 
   const resetEntry = resetResult.rows[0];
