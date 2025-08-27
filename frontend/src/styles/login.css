@@ -87,7 +87,7 @@ button.submit:active {
 }
 
 .new-user a {
-  color: #ffeb3b;
+  color: green;
   font-weight: 600;
   text-decoration: none;
 }
