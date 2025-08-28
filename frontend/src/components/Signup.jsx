@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/signup.css";
+import config from "./config.json";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 
@@ -15,6 +16,7 @@ function Signup() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const API_URL = config.API_URL;
 
   const validatePassword = (pwd) => {
     const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -44,7 +46,7 @@ function Signup() {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:3000/auth/signup", {
+      const response = await fetch('${API_URL}/auth/signup', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

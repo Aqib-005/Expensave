@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import '../styles/login.css';
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
+import config from "./config.json";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ function Login() {
 
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const API_URL = config.API_URL;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,7 +24,7 @@ function Login() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/auth/login", {
+      const response = await fetch('${API_URL}/auth/login', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

@@ -10,7 +10,7 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
-    await fetch("http://localhost:3000/auth/logout", {
+    await fetch('${API_URL}/auth/logout', {
       method: "POST",
       credentials: "include",
     });

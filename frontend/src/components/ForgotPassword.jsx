@@ -1,11 +1,13 @@
 import React from "react";
 import { useState } from "react";
 import '../styles/forgotpassword.css';
+import config from "./config.json";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const API_URL = config.API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,7 +15,7 @@ function ForgotPassword() {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:3000/auth/forgotpassword", {
+      const res = await fetch('${API_URL}/auth/forgotpassword', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

@@ -7,6 +7,7 @@ import Signup from './components/Signup.jsx'
 import { AuthProvider } from './components/AuthContext.jsx'
 import ResetPassword from './components/ResetPassword.jsx'
 import ForgotPassword from './components/ForgotPassword.jsx'
+import Transactions from './components/Transactions.jsx'
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path='/signup' element={<Signup />} />
           <Route path='/resetpassword' element={<ResetPassword />} />
           <Route path='/forgotpassword' element={<ForgotPassword />} />
+          <Route path='/transactions' element={<Transactions />} />
         </Routes>
       </Router>
     </AuthProvider>

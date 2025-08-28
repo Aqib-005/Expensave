@@ -21,11 +21,25 @@ router.post("/transactions", async (req, res) => {
 // Get all transactions for user
 router.get("/transactions/:userId", async (req, res) => {
   const { userId } = req.params;
-  const result = await pool.query(
-    'SELECT * FROM transactions WHERE "userID" = $1 ORDER BY date DESC',
-    [userId],
-  );
-  res.json(result.rows);
+  const { type } = req.query;
+
+  try {
+    let query = `SELECT * FROM transactions WHERE user_id = $1`;
+    let values = [userId];
+
+    if (type) {
+      query += ` AND type = $2`;
+      values.push(type);
+    }
+
+    query += ` ORDER BY date DESC`;
+
+    const result = await pool.query(query, values);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch transactions" });
+  }
 });
 
 // Update transaction

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import '../styles/resetpassword.css';
+import config from "./config.json";
 
 function ResetPassword() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token");
+  const API_URL = config.API_URL;
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -31,7 +33,7 @@ function ResetPassword() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/auth/resetpassword", {
+      const res = await fetch('${API_URL}/auth/resetpassword', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, password }),
