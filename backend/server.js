@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import passport from "passport";
 import authRoutes from "./auth.js";
 import "./passport.js";
+import transactionRoutes from "./transactions.js";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(passport.initialize());
 app.use(express.json());
 app.use(cookieParser());
 app.use("/auth", authRoutes);
+app.use("/transactions", transactionRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);

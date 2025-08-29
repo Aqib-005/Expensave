@@ -24,7 +24,7 @@ function Navbar() {
       <a className="nav-logo" href="/">Logo</a>
 
       <div className="nav-right">
-        <a className="nav-link" href="/dashboard">Dashboard</a>
+        <a className="nav-link" href="/transactions">Dashboard</a>
         {!loading && (
           user ? (
             <div className="user-menu">

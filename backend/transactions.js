@@ -4,7 +4,7 @@ import express from "express";
 const router = express.Router();
 
 // Create transaction
-router.post("/transactions", async (req, res) => {
+router.post("/", async (req, res) => {
   const { user_id, amount, category, type, description, date } = req.body;
   try {
     const result = await pool.query(
@@ -14,55 +14,72 @@ router.post("/transactions", async (req, res) => {
     );
     res.json(result.rows[0]);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Failed to add transaction" });
   }
 });
 
-// Get all transactions for user
-router.get("/transactions/:userId", async (req, res) => {
+// Get all income transactions for a user
+router.get("/income/:userId", async (req, res) => {
   const { userId } = req.params;
-  const { type } = req.query;
-
   try {
-    let query = `SELECT * FROM transactions WHERE user_id = $1`;
-    let values = [userId];
-
-    if (type) {
-      query += ` AND type = $2`;
-      values.push(type);
-    }
-
-    query += ` ORDER BY date DESC`;
-
-    const result = await pool.query(query, values);
+    const result = await pool.query(
+      'SELECT * FROM transactions WHERE "userID" = $1 AND type = $2',
+      [userId, "income"],
+    );
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch transactions" });
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to fetch income transactions" });
+  }
+});
+
+// Get all expense transactions for a user
+router.get("/expenses/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM transactions WHERE "userID" = $1 AND type = $2',
+      [userId, "expense"],
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to fetch expense transactions" });
   }
 });
 
 // Update transaction
-router.put("/transactions/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { amount, category, type, description, date } = req.body;
-  const result = await pool.query(
-    `UPDATE transactions SET amount=$1, category=$2, type=$3, description=$4, date=$5
-     WHERE "transactionID"=$6 RETURNING *`,
-    [amount, category, type, description, date, id],
-  );
-  res.json(result.rows[0]);
+  try {
+    const result = await pool.query(
+      `UPDATE transactions 
+       SET amount=$1, category=$2, type=$3, description=$4, date=$5
+       WHERE transactionid=$6 RETURNING *`,
+      [amount, category, type, description, date, id],
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update transaction" });
+  }
 });
 
 // Delete transaction
-router.delete("/transactions/:id", async (req, res) => {
-  await pool.query('DELETE FROM transactions WHERE "transactionID"=$1', [
-    req.params.id,
-  ]);
-  res.json({ message: "Deleted successfully" });
+router.delete("/:id", async (req, res) => {
+  try {
+    await pool.query("DELETE FROM transactions WHERE transactionid=$1", [
+      req.params.id,
+    ]);
+    res.json({ message: "Deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete transaction" });
+  }
 });
 
-// Create recurring expense
 router.post("/recurring", async (req, res) => {
   const {
     user_id,
@@ -73,24 +90,32 @@ router.post("/recurring", async (req, res) => {
     interval,
     next_due_date,
   } = req.body;
-  const result = await pool.query(
-    `INSERT INTO recurring_expenses ("userID", amount, category, type, description, interval, next_due_date)
-     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-    [user_id, amount, category, type, description, interval, next_due_date],
-  );
-  res.json(result.rows[0]);
+  try {
+    const result = await pool.query(
+      `INSERT INTO recurring_expenses ("userID", amount, category, type, description, interval, next_due_date)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [user_id, amount, category, type, description, interval, next_due_date],
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to add recurring expense" });
+  }
 });
 
-// Get recurring
 router.get("/recurring/:userId", async (req, res) => {
-  const result = await pool.query(
-    'SELECT * FROM recurring_expenses WHERE "userID"=$1 AND is_active=TRUE',
-    [req.params.userId],
-  );
-  res.json(result.rows);
+  try {
+    const result = await pool.query(
+      'SELECT * FROM recurring_expenses WHERE "userID"=$1 AND is_active=TRUE',
+      [req.params.userId],
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch recurring expenses" });
+  }
 });
 
-// Update recurring
 router.put("/recurring/:id", async (req, res) => {
   const { id } = req.params;
   const {
@@ -102,67 +127,94 @@ router.put("/recurring/:id", async (req, res) => {
     next_due_date,
     is_active,
   } = req.body;
-  const result = await pool.query(
-    `UPDATE recurring_expenses SET amount=$1, category=$2, type=$3, description=$4, interval=$5, next_due_date=$6, is_active=$7
-     WHERE "recurringID"=$8 RETURNING *`,
-    [
-      amount,
-      category,
-      type,
-      description,
-      interval,
-      next_due_date,
-      is_active,
-      id,
-    ],
-  );
-  res.json(result.rows[0]);
+  try {
+    const result = await pool.query(
+      `UPDATE recurring_expenses 
+       SET amount=$1, category=$2, type=$3, description=$4, interval=$5, next_due_date=$6, is_active=$7
+       WHERE recurringid=$8 RETURNING *`,
+      [
+        amount,
+        category,
+        type,
+        description,
+        interval,
+        next_due_date,
+        is_active,
+        id,
+      ],
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update recurring expense" });
+  }
 });
 
-// Delete recurring
 router.delete("/recurring/:id", async (req, res) => {
-  await pool.query('DELETE FROM recurring_expenses WHERE "recurringID"=$1', [
-    req.params.id,
-  ]);
-  res.json({ message: "Recurring expense deleted" });
+  try {
+    await pool.query("DELETE FROM recurring_expenses WHERE recurringid=$1", [
+      req.params.id,
+    ]);
+    res.json({ message: "Recurring expense deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete recurring expense" });
+  }
 });
 
-// Create budget
 router.post("/budgets", async (req, res) => {
   const { user_id, category, limit_amount, period, start_date, end_date } =
     req.body;
-  const result = await pool.query(
-    `INSERT INTO budgets ("userID", category, limit_amount, period, start_date, end_date)
-     VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-    [user_id, category, limit_amount, period, start_date, end_date],
-  );
-  res.json(result.rows[0]);
+  try {
+    const result = await pool.query(
+      `INSERT INTO budgets ("userID", category, limit_amount, period, start_date, end_date)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      [user_id, category, limit_amount, period, start_date, end_date],
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to add budget" });
+  }
 });
 
-// Get budgets
 router.get("/budgets/:userId", async (req, res) => {
-  const result = await pool.query('SELECT * FROM budgets WHERE "userID"=$1', [
-    req.params.userId,
-  ]);
-  res.json(result.rows);
+  try {
+    const result = await pool.query('SELECT * FROM budgets WHERE "userID"=$1', [
+      req.params.userId,
+    ]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch budgets" });
+  }
 });
 
-// Update budget
 router.put("/budgets/:id", async (req, res) => {
   const { id } = req.params;
   const { category, limit_amount, period, start_date, end_date } = req.body;
-  const result = await pool.query(
-    `UPDATE budgets SET category=$1, limit_amount=$2, period=$3, start_date=$4, end_date=$5
-     WHERE "budgetID"=$6 RETURNING *`,
-    [category, limit_amount, period, start_date, end_date, id],
-  );
-  res.json(result.rows[0]);
+  try {
+    const result = await pool.query(
+      `UPDATE budgets 
+       SET category=$1, limit_amount=$2, period=$3, start_date=$4, end_date=$5
+       WHERE budgetid=$6 RETURNING *`,
+      [category, limit_amount, period, start_date, end_date, id],
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update budget" });
+  }
 });
 
-// Delete budget
 router.delete("/budgets/:id", async (req, res) => {
-  await pool.query('DELETE FROM budgets WHERE "budgetID"=$1', [req.params.id]);
-  res.json({ message: "Budget deleted" });
+  try {
+    await pool.query("DELETE FROM budgets WHERE budgetid=$1", [req.params.id]);
+    res.json({ message: "Budget deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete budget" });
+  }
 });
 
 export default router;
