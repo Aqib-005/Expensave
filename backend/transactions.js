@@ -5,12 +5,13 @@ const router = express.Router();
 
 // Create transaction
 router.post("/", async (req, res) => {
-  const { user_id, amount, category, type, description, date } = req.body;
+  const { user_id, amount, category, type, description, date, recurring } =
+    req.body;
   try {
     const result = await pool.query(
-      `INSERT INTO transactions ("userID", amount, category, type, description, date)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [user_id, amount, category, type, description, date],
+      `INSERT INTO transactions ("userID", amount, category, type, description, date, recurring)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [user_id, amount, category, type, description, date, recurring || false],
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -23,41 +24,29 @@ router.post("/", async (req, res) => {
 router.get("/income/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
-    const oneOff = await pool.query(
-      'SELECT *, false as recurring FROM transactions WHERE "userID" = $1 AND type = $2',
-      [userId, "income"],
+    const result = await pool.query(
+      `SELECT * FROM transactions WHERE "userID" = $1 AND type = 'income' ORDER BY date DESC`,
+      [userId],
     );
-
-    const recurring = await pool.query(
-      'SELECT *, true as recurring FROM recurring_expenses WHERE "userID" = $1 AND type = $2 AND is_active=TRUE',
-      [userId, "income"],
-    );
-
-    res.json([...oneOff.rows, ...recurring.rows]);
+    res.json(result.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Failed to fetch income transactions" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch income" });
   }
 });
 
-// Get all expense transactions
+// Get all expenses for a user
 router.get("/expenses/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
-    const oneOff = await pool.query(
-      'SELECT *, false as recurring FROM transactions WHERE "userID" = $1 AND type = $2',
-      [userId, "expense"],
+    const result = await pool.query(
+      `SELECT * FROM transactions WHERE "userID" = $1 AND type = 'expense' ORDER BY date DESC`,
+      [userId],
     );
-
-    const recurring = await pool.query(
-      'SELECT *, true as recurring FROM recurring_expenses WHERE "userID" = $1 AND type = $2 AND is_active=TRUE',
-      [userId, "expense"],
-    );
-
-    res.json([...oneOff.rows, ...recurring.rows]);
+    res.json(result.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Failed to fetch expense transactions" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch expenses" });
   }
 });
 
