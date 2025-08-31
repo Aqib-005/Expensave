@@ -19,30 +19,42 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Get all income transactions for a user
+// Get all income transactions
 router.get("/income/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
-    const result = await pool.query(
-      'SELECT * FROM transactions WHERE "userID" = $1 AND type = $2',
+    const oneOff = await pool.query(
+      'SELECT *, false as recurring FROM transactions WHERE "userID" = $1 AND type = $2',
       [userId, "income"],
     );
-    res.json(result.rows);
+
+    const recurring = await pool.query(
+      'SELECT *, true as recurring FROM recurring_expenses WHERE "userID" = $1 AND type = $2 AND is_active=TRUE',
+      [userId, "income"],
+    );
+
+    res.json([...oneOff.rows, ...recurring.rows]);
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ error: "Failed to fetch income transactions" });
   }
 });
 
-// Get all expense transactions for a user
+// Get all expense transactions
 router.get("/expenses/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
-    const result = await pool.query(
-      'SELECT * FROM transactions WHERE "userID" = $1 AND type = $2',
+    const oneOff = await pool.query(
+      'SELECT *, false as recurring FROM transactions WHERE "userID" = $1 AND type = $2',
       [userId, "expense"],
     );
-    res.json(result.rows);
+
+    const recurring = await pool.query(
+      'SELECT *, true as recurring FROM recurring_expenses WHERE "userID" = $1 AND type = $2 AND is_active=TRUE',
+      [userId, "expense"],
+    );
+
+    res.json([...oneOff.rows, ...recurring.rows]);
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ error: "Failed to fetch expense transactions" });

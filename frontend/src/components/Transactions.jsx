@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import config from "./config.json";
 import { useAuth } from "./AuthContext.jsx";
+import TransactionForm from "./TransactionForm.jsx";
 
 function Transactions() {
   const API_URL = config.API_URL;
@@ -8,28 +9,35 @@ function Transactions() {
   const [income, setIncome] = useState([]);
   const [expenses, setExpenses] = useState([]);
 
+  const [showForm, setShowForm] = useState(false);
+  const [formType, setFormType] = useState("");
+
   const fetchIncome = (userId) => {
-    fetch(`${API_URL}/transactions/income/${userId}`, {
-      credentials: "include",
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Network response was not ok");
-        return response.json();
-      })
+    fetch(`${API_URL}/transactions/income/${userId}`, { credentials: "include" })
+      .then((res) => res.json())
       .then((data) => setIncome(data))
-      .catch((error) => console.error("Error fetching income: ", error));
+      .catch((err) => console.error("Error fetching income:", err));
   };
 
   const fetchExpenses = (userId) => {
-    fetch(`${API_URL}/transactions/expenses/${userId}`, {
-      credentials: "include",
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Network response was not ok");
-        return response.json();
-      })
+    fetch(`${API_URL}/transactions/expenses/${userId}`, { credentials: "include" })
+      .then((res) => res.json())
       .then((data) => setExpenses(data))
-      .catch((error) => console.error("Error fetching expenses: ", error));
+      .catch((err) => console.error("Error fetching expenses:", err));
+  };
+
+  const handleAddButton = (type) => {
+    setFormType(type);
+    setShowForm(true);
+  };
+
+  const handleFormSubmit = (newTransaction) => {
+    if (newTransaction.type === "income") {
+      setIncome((prev) => [...prev, newTransaction]);
+    } else {
+      setExpenses((prev) => [...prev, newTransaction]);
+    }
+    setShowForm(false);
   };
 
   useEffect(() => {
@@ -45,6 +53,9 @@ function Transactions() {
         <>
           <div className="income-section">
             <h3>Income</h3>
+            <button className="add-button" onClick={() => handleAddButton("income")}>
+              + Add Income
+            </button>
             <table>
               <tbody>
                 {income.map((item) => (
@@ -59,6 +70,9 @@ function Transactions() {
 
           <div className="expenses-section">
             <h3>Expenses</h3>
+            <button className="add-button" onClick={() => handleAddButton("expense")}>
+              + Add Expense
+            </button>
             <table>
               <thead>
                 <tr>
@@ -68,20 +82,27 @@ function Transactions() {
                 </tr>
               </thead>
               <tbody>
-                {expenses.map((item) => (
-                  <tr key={item.transactionid}>
+                {expenses.map((item, idx) => (
+                  <tr key={item.transactionid || idx}>
                     <td>{item.category}</td>
                     <td>{item.amount}</td>
-                    <td>{new Date(item.date).toLocaleDateString()}</td>
+                    <td>
+                      {item.date ? new Date(item.date).toLocaleDateString("en-US") : "—"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="budget-section">
-            <p>Budget Placeholder</p>
-          </div>
+          {showForm && (
+            <TransactionForm
+              type={formType}
+              userId={user.userID}
+              onClose={() => setShowForm(false)}
+              onSubmit={handleFormSubmit}
+            />
+          )}
         </>
       ) : (
         <p>Please log in to view your transactions.</p>

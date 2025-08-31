@@ -3,20 +3,22 @@ import "../styles/navbar.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext.jsx";
 import { FaUserCircle } from "react-icons/fa";
+import config from "./config.json";
 
 function Navbar() {
   const { user, setUser, loading } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const API_URL = config.API_URL;
 
   const handleLogout = async () => {
-    await fetch('${API_URL}/auth/logout', {
+    await fetch(`${API_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
     setUser(null);
     setMenuOpen(false);
-    navigate("/");
+    //navigate("/");
   };
 
   return (
