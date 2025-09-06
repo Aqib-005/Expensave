@@ -1,0 +1,136 @@
+.transaction-page {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: "Inter", sans-serif;
+  color: #333;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.section-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #222;
+  margin: 0;
+}
+
+.add-button {
+  background-color: #4f46e5; /* match primary theme */
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.add-button:hover {
+  background-color: #4338ca;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+th,
+td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: #e9eaeb;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* Simplified category-based colors */
+.category-income {
+  background-color: #e5a3a3; /* soft green */
+}
+
+.category-rent {
+  background-color: #fef2f2; /* soft red */
+}
+
+.category-groceries {
+  background-color: #f0fdf4; /* very light green */
+}
+
+.category-transport {
+  background-color: #eff6ff; /* soft blue */
+}
+
+.category-dining {
+  background-color: #fff7ed; /* soft orange */
+}
+
+.category-entertainment {
+  background-color: #fdf4ff; /* soft purple */
+}
+
+.category-other {
+  background-color: #fffdcc; /* neutral gray */
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 0.4rem 0.6rem;
+  margin: 0 0.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.edit-btn {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #d97706;
+}
+
+.delete-btn {
+  background-color: #ef4444;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
+tbody tr[class*="category-"] td {
+  transition: background 0.2s ease;
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.popup-actions button {
+  margin-left: 0.5rem;
+}
