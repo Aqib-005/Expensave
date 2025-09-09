@@ -134,3 +134,116 @@ tbody tr[class*="category-"] td {
 .popup-actions button {
   margin-left: 0.5rem;
 }
+
+.month-selector {
+  position: relative;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.current-month {
+  font-size: 1.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #333;
+}
+
+.month-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  width: 200px;
+}
+
+.month-option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.month-option:hover {
+  background: #f3f4f6;
+}
+
+.month-option.active {
+  font-weight: bold;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.month-year-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.selector-left,
+.selector-right {
+  position: relative;
+}
+
+.current-month,
+.current-year {
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #333;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+  background: #f9fafb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.current-month:hover,
+.current-year:hover {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+/* Dropdowns */
+.month-dropdown,
+.year-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  width: 200px;
+}
+
+.month-option,
+.year-option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.month-option:hover,
+.year-option:hover {
+  background: #f3f4f6;
+}
+
+.month-option.active,
+.year-option.active {
+  font-weight: bold;
+  background: #eef2ff;
+  color: #4338ca;
+}

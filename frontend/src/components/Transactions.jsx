@@ -13,22 +13,60 @@ function Transactions() {
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState("");
   const [editTransaction, setEditTransaction] = useState(null);
-
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const fetchIncome = (userId) => {
-    fetch(`${API_URL}/transactions/income/${userId}`, { credentials: "include" })
-      .then((res) => res.json())
+  // Month/Year
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // 1-12
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  const [showYearPicker, setShowYearPicker] = useState(false);
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  // Fetch Income (with month/year) and clear previous while loading
+  const fetchIncome = (userId, month, year) => {
+    setIncome([]); // clear while loading so UI doesn't show old month data
+    const url = `${API_URL}/transactions/income/${userId}?month=${month}&year=${year}`;
+    console.log("Fetching income:", url);
+    fetch(url, { credentials: "include" })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
+        return res.json();
+      })
       .then((data) => setIncome(data))
-      .catch((err) => console.error("Error fetching income:", err));
+      .catch((err) => {
+        console.error("Error fetching income:", err);
+        setIncome([]); // keep it empty on error
+      });
   };
 
-  const fetchExpenses = (userId) => {
-    fetch(`${API_URL}/transactions/expenses/${userId}`, { credentials: "include" })
-      .then((res) => res.json())
+  // Fetch Expenses (with month/year)
+  const fetchExpenses = (userId, month, year) => {
+    setExpenses([]);
+    const url = `${API_URL}/transactions/expenses/${userId}?month=${month}&year=${year}`;
+    console.log("Fetching expenses:", url);
+    fetch(url, { credentials: "include" })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
+        return res.json();
+      })
       .then((data) => setExpenses(data))
-      .catch((err) => console.error("Error fetching expenses:", err));
+      .catch((err) => {
+        console.error("Error fetching expenses:", err);
+        setExpenses([]);
+      });
   };
+
+  // automatically re-fetch when user / month / year changes
+  useEffect(() => {
+    if (user) {
+      fetchIncome(user.userID, selectedMonth, selectedYear);
+      fetchExpenses(user.userID, selectedMonth, selectedYear);
+    }
+  }, [user, selectedMonth, selectedYear]);
 
   const handleAddButton = (type) => {
     setFormType(type);
@@ -48,7 +86,6 @@ function Transactions() {
 
   const confirmDelete = () => {
     if (!deleteConfirm) return;
-
     const { transaction, type } = deleteConfirm;
 
     fetch(`${API_URL}/transactions/${transaction.transactionid}`, {
@@ -58,58 +95,99 @@ function Transactions() {
       .then((res) => {
         if (res.ok) {
           if (type === "income") {
-            setIncome((prev) =>
-              prev.filter((t) => t.transactionid !== transaction.transactionid)
-            );
+            setIncome((prev) => prev.filter((t) => t.transactionid !== transaction.transactionid));
           } else {
-            setExpenses((prev) =>
-              prev.filter((t) => t.transactionid !== transaction.transactionid)
-            );
+            setExpenses((prev) => prev.filter((t) => t.transactionid !== transaction.transactionid));
           }
         }
         setDeleteConfirm(null);
       })
-      .catch((err) => console.error("Error deleting transaction:", err));
+      .catch((err) => {
+        console.error("Error deleting transaction:", err);
+        setDeleteConfirm(null);
+      });
   };
 
   const handleFormSubmit = (savedTransaction) => {
     if (editTransaction) {
-      // Update
+      // Update local list
       if (savedTransaction.type === "income") {
-        setIncome((prev) =>
-          prev.map((t) =>
-            t.transactionid === savedTransaction.transactionid ? savedTransaction : t
-          )
-        );
+        setIncome((prev) => prev.map((t) => (t.transactionid === savedTransaction.transactionid ? savedTransaction : t)));
       } else {
-        setExpenses((prev) =>
-          prev.map((t) =>
-            t.transactionid === savedTransaction.transactionid ? savedTransaction : t
-          )
-        );
+        setExpenses((prev) => prev.map((t) => (t.transactionid === savedTransaction.transactionid ? savedTransaction : t)));
       }
     } else {
+      // Add new transaction to current list only if it matches the selected month/year
+      const txDate = savedTransaction.date ? new Date(savedTransaction.date) : null;
+      const txMonth = txDate ? txDate.getMonth() + 1 : null;
+      const txYear = txDate ? txDate.getFullYear() : null;
+
       if (savedTransaction.type === "income") {
-        setIncome((prev) => [...prev, savedTransaction]);
+        if (!txDate || (txMonth === selectedMonth && txYear === selectedYear)) {
+          setIncome((prev) => [...prev, savedTransaction]);
+        }
       } else {
-        setExpenses((prev) => [...prev, savedTransaction]);
+        if (!txDate || (txMonth === selectedMonth && txYear === selectedYear)) {
+          setExpenses((prev) => [...prev, savedTransaction]);
+        }
       }
     }
+
     setShowForm(false);
     setEditTransaction(null);
   };
-
-  useEffect(() => {
-    if (user) {
-      fetchIncome(user.userID);
-      fetchExpenses(user.userID);
-    }
-  }, [user]);
 
   return (
     <div className="transaction-page">
       {user ? (
         <>
+          {/* Month/Year Selector */}
+          <div className="month-year-selector">
+            <div className="selector-left">
+              <h2 className="current-month" onClick={() => setShowMonthPicker(!showMonthPicker)}>
+                {monthNames[selectedMonth - 1]} ⏷
+              </h2>
+              {showMonthPicker && (
+                <div className="month-dropdown">
+                  {monthNames.map((m, idx) => (
+                    <div
+                      key={m}
+                      className={`month-option ${idx + 1 === selectedMonth ? "active" : ""}`}
+                      onClick={() => {
+                        setSelectedMonth(idx + 1);
+                        setShowMonthPicker(false);
+                      }}
+                    >
+                      {m}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="selector-right">
+              <h2 className="current-year" onClick={() => setShowYearPicker(!showYearPicker)}>
+                {selectedYear} ⏷
+              </h2>
+              {showYearPicker && (
+                <div className="year-dropdown">
+                  {Array.from({ length: 9 }, (_, i) => selectedYear - 4 + i).map((yr) => (
+                    <div
+                      key={yr}
+                      className={`year-option ${yr === selectedYear ? "active" : ""}`}
+                      onClick={() => {
+                        setSelectedYear(yr);
+                        setShowYearPicker(false);
+                      }}
+                    >
+                      {yr}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Income */}
           <div className="income-section">
             <div className="section-header">
@@ -128,25 +206,16 @@ function Transactions() {
               </thead>
               <tbody>
                 {income.map((item, idx) => (
-                  <tr
-                    key={item.transactionid || idx}
-                    className={`category-${item.category.toLowerCase()}`}
-                  >
+                  <tr key={item.transactionid || idx} className={`category-${item.category?.toLowerCase() || "other"}`}>
                     <td>{item.description}</td>
                     <td>{item.amount}</td>
                     <td>
-                      <button className="edit-btn" onClick={() => handleEdit(item, "income")}>
-                        Edit
-                      </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDeleteClick(item, "income")}
-                      >
-                        Delete
-                      </button>
+                      <button className="edit-btn" onClick={() => handleEdit(item, "income")}>Edit</button>
+                      <button className="delete-btn" onClick={() => handleDeleteClick(item, "income")}>Delete</button>
                     </td>
                   </tr>
                 ))}
+                {income.length === 0 && <tr><td colSpan="3">No income for this month</td></tr>}
               </tbody>
             </table>
           </div>
@@ -155,9 +224,7 @@ function Transactions() {
           <div className="expenses-section">
             <div className="section-header">
               <h3>Expenses</h3>
-              <button className="add-button" onClick={() => handleAddButton("expense")}>
-                + Add Expense
-              </button>
+              <button className="add-button" onClick={() => handleAddButton("expense")}>+ Add Expense</button>
             </div>
             <table>
               <thead>
@@ -170,26 +237,17 @@ function Transactions() {
               </thead>
               <tbody>
                 {expenses.map((item, idx) => (
-                  <tr
-                    key={item.transactionid || idx}
-                    className={`category-${item.category.toLowerCase()}`}
-                  >
+                  <tr key={item.transactionid || idx} className={`category-${item.category?.toLowerCase() || "other"}`}>
                     <td>{item.description}</td>
                     <td>{item.amount}</td>
                     <td>{item.date ? new Date(item.date).toLocaleDateString("en-US") : "—"}</td>
                     <td>
-                      <button className="edit-btn" onClick={() => handleEdit(item, "expense")}>
-                        Edit
-                      </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDeleteClick(item, "expense")}
-                      >
-                        Delete
-                      </button>
+                      <button className="edit-btn" onClick={() => handleEdit(item, "expense")}>Edit</button>
+                      <button className="delete-btn" onClick={() => handleDeleteClick(item, "expense")}>Delete</button>
                     </td>
                   </tr>
                 ))}
+                {expenses.length === 0 && <tr><td colSpan="4">No expenses for this month</td></tr>}
               </tbody>
             </table>
           </div>
@@ -200,10 +258,7 @@ function Transactions() {
               type={formType}
               userId={user.userID}
               transaction={editTransaction}
-              onClose={() => {
-                setShowForm(false);
-                setEditTransaction(null);
-              }}
+              onClose={() => { setShowForm(false); setEditTransaction(null); }}
               onSubmit={handleFormSubmit}
             />
           )}
@@ -213,17 +268,10 @@ function Transactions() {
             <div className="popup-overlay">
               <div className="popup-form">
                 <h3>Confirm Delete</h3>
-                <p>
-                  Are you sure you want to delete{" "}
-                  <strong>{deleteConfirm.transaction.description}</strong>?
-                </p>
+                <p>Are you sure you want to delete <strong>{deleteConfirm.transaction.description}</strong>?</p>
                 <div className="popup-actions">
-                  <button className="delete-btn" onClick={confirmDelete}>
-                    Confirm
-                  </button>
-                  <button className="add-button" onClick={() => setDeleteConfirm(null)}>
-                    Cancel
-                  </button>
+                  <button className="delete-btn" onClick={confirmDelete}>Confirm</button>
+                  <button className="add-button" onClick={() => setDeleteConfirm(null)}>Cancel</button>
                 </div>
               </div>
             </div>
