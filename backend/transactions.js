@@ -75,6 +75,44 @@ router.get("/income/:userId", async (req, res) => {
   }
 });
 
+router.get("/budgets/:userId/progress", async (req, res) => {
+  const { userId } = req.params;
+  const { month, year } = req.query;
+
+  try {
+    // Get all budgets for this user
+    const [budgets] = await db.query("SELECT * FROM budget WHERE userID = ?", [
+      userId,
+    ]);
+
+    // For each budget, calculate spent this month
+    const progress = await Promise.all(
+      budgets.map(async (budget) => {
+        const [spentResult] = await db.query(
+          `SELECT SUM(amount) AS spent 
+           FROM expenses 
+           WHERE userID = ? 
+             AND category = ? 
+             AND MONTH(date) = ? 
+             AND YEAR(date) = ?`,
+          [userId, budget.category, month, year],
+        );
+
+        return {
+          category: budget.category,
+          limit: budget.limit_amount,
+          spent: spentResult[0].spent || 0,
+        };
+      }),
+    );
+
+    res.json(progress);
+  } catch (err) {
+    console.error("Error fetching budget progress:", err);
+    res.status(500).json({ error: "Failed to fetch budget progress" });
+  }
+});
+
 // Get expenses for a specific user (optionally filter by month/year)
 router.get("/expenses/:userId", async (req, res) => {
   const { userId } = req.params;
@@ -152,15 +190,48 @@ router.post("/budgets", async (req, res) => {
   }
 });
 
-router.get("/budgets/:userId", async (req, res) => {
+router.get("/budgets/:userId/progress", async (req, res) => {
+  const { userId } = req.params;
+  const { month, year } = req.query;
+
   try {
-    const result = await pool.query('SELECT * FROM budgets WHERE "userID"=$1', [
-      req.params.userId,
-    ]);
-    res.json(result.rows);
+    // Find budgets active in this month
+    const startDate = new Date(year, month - 1, 1).toISOString().split("T")[0];
+    const endDate = new Date(year, month, 0).toISOString().split("T")[0];
+
+    const budgets = await pool.query(
+      `SELECT * FROM budgets 
+       WHERE "userID"=$1 
+       AND start_date <= $2 
+       AND end_date >= $3`,
+      [userId, endDate, startDate],
+    );
+
+    let results = [];
+
+    for (let b of budgets.rows) {
+      const spent = await pool.query(
+        `SELECT COALESCE(SUM(amount),0) as total
+         FROM transactions
+         WHERE "userID"=$1 AND category=$2 
+         AND type='expense'
+         AND date >= $3 AND date <= $4`,
+        [userId, b.category, startDate, endDate],
+      );
+
+      results.push({
+        budgetid: b.budgetid,
+        category: b.category,
+        limit: parseFloat(b.limit_amount),
+        spent: parseFloat(spent.rows[0].total),
+        remaining: parseFloat(b.limit_amount) - parseFloat(spent.rows[0].total),
+      });
+    }
+
+    res.json(results);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch budgets" });
+    res.status(500).json({ error: "Failed to fetch budget progress" });
   }
 });
 

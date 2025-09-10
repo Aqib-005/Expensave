@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import config from "./config.json";
 import { useAuth } from "./AuthContext.jsx";
 import TransactionForm from "./TransactionForm.jsx";
+import BudgetForm from "./BudgetForm.jsx";
 import "../styles/transactions.css";
 
 function Transactions() {
@@ -9,6 +10,8 @@ function Transactions() {
   const { user } = useAuth();
   const [income, setIncome] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [budgets, setBudgets] = useState([]);
+  const [showBudgetForm, setShowBudgetForm] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState("");
@@ -26,33 +29,23 @@ function Transactions() {
     "July", "August", "September", "October", "November", "December"
   ];
 
-  // Fetch Income (with month/year) and clear previous while loading
   const fetchIncome = (userId, month, year) => {
-    setIncome([]); // clear while loading so UI doesn't show old month data
+    setIncome([]);
     const url = `${API_URL}/transactions/income/${userId}?month=${month}&year=${year}`;
-    console.log("Fetching income:", url);
     fetch(url, { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Server returned ${res.status}`);
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => setIncome(data))
       .catch((err) => {
         console.error("Error fetching income:", err);
-        setIncome([]); // keep it empty on error
+        setIncome([]);
       });
   };
 
-  // Fetch Expenses (with month/year)
   const fetchExpenses = (userId, month, year) => {
     setExpenses([]);
     const url = `${API_URL}/transactions/expenses/${userId}?month=${month}&year=${year}`;
-    console.log("Fetching expenses:", url);
     fetch(url, { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Server returned ${res.status}`);
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => setExpenses(data))
       .catch((err) => {
         console.error("Error fetching expenses:", err);
@@ -60,11 +53,20 @@ function Transactions() {
       });
   };
 
-  // automatically re-fetch when user / month / year changes
+  const fetchBudgets = (userId, month, year) => {
+    fetch(`${API_URL}/transactions/budgets/${userId}/progress?month=${month}&year=${year}`, {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => setBudgets(data))
+      .catch((err) => console.error("Error fetching budgets:", err));
+  };
+
   useEffect(() => {
     if (user) {
       fetchIncome(user.userID, selectedMonth, selectedYear);
       fetchExpenses(user.userID, selectedMonth, selectedYear);
+      fetchBudgets(user.userID, selectedMonth, selectedYear);
     }
   }, [user, selectedMonth, selectedYear]);
 
@@ -110,14 +112,18 @@ function Transactions() {
 
   const handleFormSubmit = (savedTransaction) => {
     if (editTransaction) {
-      // Update local list
+      // Update existing
       if (savedTransaction.type === "income") {
-        setIncome((prev) => prev.map((t) => (t.transactionid === savedTransaction.transactionid ? savedTransaction : t)));
+        setIncome((prev) =>
+          prev.map((t) => (t.transactionid === savedTransaction.transactionid ? savedTransaction : t))
+        );
       } else {
-        setExpenses((prev) => prev.map((t) => (t.transactionid === savedTransaction.transactionid ? savedTransaction : t)));
+        setExpenses((prev) =>
+          prev.map((t) => (t.transactionid === savedTransaction.transactionid ? savedTransaction : t))
+        );
       }
     } else {
-      // Add new transaction to current list only if it matches the selected month/year
+      // Add new if in current month
       const txDate = savedTransaction.date ? new Date(savedTransaction.date) : null;
       const txMonth = txDate ? txDate.getMonth() + 1 : null;
       const txYear = txDate ? txDate.getFullYear() : null;
@@ -141,7 +147,6 @@ function Transactions() {
     <div className="transaction-page">
       {user ? (
         <>
-          {/* Month/Year Selector */}
           <div className="month-year-selector">
             <div className="selector-left">
               <h2 className="current-month" onClick={() => setShowMonthPicker(!showMonthPicker)}>
@@ -188,7 +193,6 @@ function Transactions() {
             </div>
           </div>
 
-          {/* Income */}
           <div className="income-section">
             <div className="section-header">
               <h3>Income</h3>
@@ -220,7 +224,6 @@ function Transactions() {
             </table>
           </div>
 
-          {/* Expenses */}
           <div className="expenses-section">
             <div className="section-header">
               <h3>Expenses</h3>
@@ -252,7 +255,6 @@ function Transactions() {
             </table>
           </div>
 
-          {/* Transaction Form */}
           {showForm && (
             <TransactionForm
               type={formType}
@@ -263,7 +265,6 @@ function Transactions() {
             />
           )}
 
-          {/* Delete Confirmation Modal */}
           {deleteConfirm && (
             <div className="popup-overlay">
               <div className="popup-form">
@@ -276,6 +277,58 @@ function Transactions() {
               </div>
             </div>
           )}
+
+          <div className="budgets-section">
+            <div className="section-header">
+              <h3>Budgets</h3>
+              <button
+                className="add-button"
+                onClick={() => setShowBudgetForm(true)}
+              >
+                + Add Budget
+              </button>
+            </div>
+
+            {budgets.length > 0 ? (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Spent</th>
+                    <th>Limit</th>
+                    <th>Remaining</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {budgets.map((b) => (
+                    <tr key={b.budgetid}>
+                      <td>{b.category}</td>
+                      <td>${b.spent.toFixed(2)}</td>
+                      <td>${b.limit.toFixed(2)}</td>
+                      <td style={{ color: b.remaining < 0 ? "red" : "green" }}>
+                        {b.remaining >= 0
+                          ? `$${b.remaining.toFixed(2)}`
+                          : `Over by $${Math.abs(b.remaining).toFixed(2)}`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No budgets set for this month.</p>
+            )}
+
+            {showBudgetForm && (
+              <BudgetForm
+                userId={user.userID}
+                onClose={() => setShowBudgetForm(false)}
+                onSubmit={(newBudget) => {
+                  setBudgets((prev) => [...prev, { ...newBudget, spent: 0, remaining: newBudget.limit_amount }]);
+                  setShowBudgetForm(false);
+                }}
+              />
+            )}
+          </div>
         </>
       ) : (
         <p>Please log in to view your transactions.</p>
