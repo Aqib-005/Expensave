@@ -18,7 +18,6 @@ function Transactions() {
   const [editTransaction, setEditTransaction] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  // Month/Year
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // 1-12
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [showMonthPicker, setShowMonthPicker] = useState(false);
@@ -54,7 +53,7 @@ function Transactions() {
   };
 
   const fetchBudgets = (userId, month, year) => {
-    fetch(`${API_URL}/transactions/budgets/${userId}/progress?month=${month}&year=${year}`, {
+    fetch(`${API_URL}/budgets/${userId}/progress?month=${month}&year=${year}`, {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -109,6 +108,21 @@ function Transactions() {
         setDeleteConfirm(null);
       });
   };
+
+  const handleDeleteBudget = (budget) => {
+    fetch(`${API_URL}/budgets/${budget.budgetid}`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((res) => {
+        if (res.ok) {
+          // refetch progress after delete
+          fetchBudgets(user.userID, selectedMonth, selectedYear);
+        }
+      })
+      .catch((err) => console.error("Error deleting budget:", err));
+  };
+
 
   const handleFormSubmit = (savedTransaction) => {
     if (editTransaction) {
@@ -297,33 +311,61 @@ function Transactions() {
                     <th>Spent</th>
                     <th>Limit</th>
                     <th>Remaining</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {budgets.map((b) => (
-                    <tr key={b.budgetid}>
+                  {budgets.map((b, idx) => (
+                    <tr key={b.budgetid || `budget-${idx}`}>
                       <td>{b.category}</td>
-                      <td>${b.spent.toFixed(2)}</td>
-                      <td>${b.limit.toFixed(2)}</td>
-                      <td style={{ color: b.remaining < 0 ? "red" : "green" }}>
-                        {b.remaining >= 0
-                          ? `$${b.remaining.toFixed(2)}`
-                          : `Over by $${Math.abs(b.remaining).toFixed(2)}`}
+                      <td>${(b.spent ?? 0).toFixed(2)}</td>
+                      <td>${(b.limit ?? 0).toFixed(2)}</td>
+                      <td style={{ color: (b.remaining ?? 0) < 0 ? "red" : "green" }}>
+                        {(b.remaining ?? 0) >= 0
+                          ? `$${(b.remaining ?? 0).toFixed(2)}`
+                          : `Over by $${Math.abs(b.remaining ?? 0).toFixed(2)}`}
+                      </td>
+                      <td>
+                        <button
+                          className="edit-btn"
+                          onClick={() => {
+                            setShowBudgetForm(true);
+                            setEditBudget(b);
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDeleteBudget(b)}
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            ) : (
+              </table>) : (
               <p>No budgets set for this month.</p>
             )}
 
             {showBudgetForm && (
+
               <BudgetForm
                 userId={user.userID}
                 onClose={() => setShowBudgetForm(false)}
-                onSubmit={(newBudget) => {
-                  setBudgets((prev) => [...prev, { ...newBudget, spent: 0, remaining: newBudget.limit_amount }]);
+                onSubmit={(createdBudget) => {
+                  const limit = parseFloat(createdBudget.limit_amount);
+                  setBudgets((prev) => [
+                    ...prev,
+                    {
+                      ...createdBudget,
+                      limit,
+                      spent: 0,
+                      remaining: limit
+                    }
+                  ]);
+                  fetchBudgets(user.userID, selectedMonth, selectedYear);
                   setShowBudgetForm(false);
                 }}
               />

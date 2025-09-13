@@ -4,32 +4,54 @@ import config from "./config.json";
 
 const categories = [
   "Groceries",
+  "Transport",
+  "Dining",
   "Rent",
-  "Utilities",
-  "Transportation",
   "Entertainment",
-  "Healthcare",
-  "Savings",
-  "Miscellaneous",
+  "Income",
+  "Other",
 ];
 
 function BudgetForm({ userId, onClose, onSubmit }) {
   const [category, setCategory] = useState(categories[0]);
   const [limit, setLimit] = useState("");
   const [period, setPeriod] = useState("monthly");
+  const API_URL = config.API_URL;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+      .toISOString()
+      .split("T")[0];
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+      .toISOString()
+      .split("T")[0];
+
     const newBudget = {
-      userId,
+      user_id: userId,
       category,
       limit_amount: parseFloat(limit),
-      period,
-      start_date: new Date(),
-      end_date: null,
+      period: "monthly",
+      start_date: startDate,
+      end_date: endDate,
     };
-    onSubmit(newBudget);
-    onClose();
+
+    try {
+      const res = await fetch(`${API_URL}/budgets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(newBudget),
+      });
+
+      const savedBudget = await res.json();
+      onSubmit(savedBudget);
+      onClose();
+    } catch (err) {
+      console.error("Error saving budget:", err);
+    }
   };
 
   return (
