@@ -11,14 +11,16 @@ function Transactions() {
   const [income, setIncome] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [budgets, setBudgets] = useState([]);
+
   const [showBudgetForm, setShowBudgetForm] = useState(false);
+  const [editBudget, setEditBudget] = useState(null);
 
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState("");
   const [editTransaction, setEditTransaction] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // works for tx + budgets
 
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // 1-12
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [showYearPicker, setShowYearPicker] = useState(false);
@@ -89,44 +91,47 @@ function Transactions() {
     if (!deleteConfirm) return;
     const { transaction, type } = deleteConfirm;
 
-    fetch(`${API_URL}/transactions/${transaction.transactionid}`, {
-      method: "DELETE",
-      credentials: "include",
-    })
-      .then((res) => {
-        if (res.ok) {
-          if (type === "income") {
-            setIncome((prev) => prev.filter((t) => t.transactionid !== transaction.transactionid));
-          } else {
-            setExpenses((prev) => prev.filter((t) => t.transactionid !== transaction.transactionid));
+    if (type === "income" || type === "expense") {
+      fetch(`${API_URL}/transactions/${transaction.transactionid}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+        .then((res) => {
+          if (res.ok) {
+            if (type === "income") {
+              setIncome((prev) => prev.filter((t) => t.transactionid !== transaction.transactionid));
+            } else {
+              setExpenses((prev) => prev.filter((t) => t.transactionid !== transaction.transactionid));
+            }
           }
-        }
-        setDeleteConfirm(null);
-      })
-      .catch((err) => {
-        console.error("Error deleting transaction:", err);
-        setDeleteConfirm(null);
-      });
-  };
+          setDeleteConfirm(null);
+        })
+        .catch((err) => {
+          console.error("Error deleting transaction:", err);
+          setDeleteConfirm(null);
+        });
+    }
 
-  const handleDeleteBudget = (budget) => {
-    fetch(`${API_URL}/budgets/${budget.budgetid}`, {
-      method: "DELETE",
-      credentials: "include",
-    })
-      .then((res) => {
-        if (res.ok) {
-          // refetch progress after delete
-          fetchBudgets(user.userID, selectedMonth, selectedYear);
-        }
+    if (type === "budget") {
+      fetch(`${API_URL}/budgets/${transaction.budgetid}`, {
+        method: "DELETE",
+        credentials: "include",
       })
-      .catch((err) => console.error("Error deleting budget:", err));
+        .then((res) => {
+          if (res.ok) {
+            fetchBudgets(user.userID, selectedMonth, selectedYear);
+          }
+          setDeleteConfirm(null);
+        })
+        .catch((err) => {
+          console.error("Error deleting budget:", err);
+          setDeleteConfirm(null);
+        });
+    }
   };
-
 
   const handleFormSubmit = (savedTransaction) => {
     if (editTransaction) {
-      // Update existing
       if (savedTransaction.type === "income") {
         setIncome((prev) =>
           prev.map((t) => (t.transactionid === savedTransaction.transactionid ? savedTransaction : t))
@@ -137,7 +142,6 @@ function Transactions() {
         );
       }
     } else {
-      // Add new if in current month
       const txDate = savedTransaction.date ? new Date(savedTransaction.date) : null;
       const txMonth = txDate ? txDate.getMonth() + 1 : null;
       const txYear = txDate ? txDate.getFullYear() : null;
@@ -161,6 +165,7 @@ function Transactions() {
     <div className="transaction-page">
       {user ? (
         <>
+          {/* Month / Year Picker */}
           <div className="month-year-selector">
             <div className="selector-left">
               <h2 className="current-month" onClick={() => setShowMonthPicker(!showMonthPicker)}>
@@ -207,6 +212,7 @@ function Transactions() {
             </div>
           </div>
 
+          {/* Income */}
           <div className="income-section">
             <div className="section-header">
               <h3>Income</h3>
@@ -216,15 +222,11 @@ function Transactions() {
             </div>
             <table>
               <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Amount</th>
-                  <th>Actions</th>
-                </tr>
+                <tr><th>Description</th><th>Amount</th><th>Actions</th></tr>
               </thead>
               <tbody>
                 {income.map((item, idx) => (
-                  <tr key={item.transactionid || idx} className={`category-${item.category?.toLowerCase() || "other"}`}>
+                  <tr key={item.transactionid || idx}>
                     <td>{item.description}</td>
                     <td>{item.amount}</td>
                     <td>
@@ -238,6 +240,7 @@ function Transactions() {
             </table>
           </div>
 
+          {/* Expenses */}
           <div className="expenses-section">
             <div className="section-header">
               <h3>Expenses</h3>
@@ -245,16 +248,11 @@ function Transactions() {
             </div>
             <table>
               <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Amount</th>
-                  <th>Date</th>
-                  <th>Actions</th>
-                </tr>
+                <tr><th>Description</th><th>Amount</th><th>Date</th><th>Actions</th></tr>
               </thead>
               <tbody>
                 {expenses.map((item, idx) => (
-                  <tr key={item.transactionid || idx} className={`category-${item.category?.toLowerCase() || "other"}`}>
+                  <tr key={item.transactionid || idx}>
                     <td>{item.description}</td>
                     <td>{item.amount}</td>
                     <td>{item.date ? new Date(item.date).toLocaleDateString("en-US") : "—"}</td>
@@ -269,6 +267,7 @@ function Transactions() {
             </table>
           </div>
 
+          {/* Transaction Form */}
           {showForm && (
             <TransactionForm
               type={formType}
@@ -279,11 +278,15 @@ function Transactions() {
             />
           )}
 
+          {/* Delete Confirm */}
           {deleteConfirm && (
             <div className="popup-overlay">
               <div className="popup-form">
                 <h3>Confirm Delete</h3>
-                <p>Are you sure you want to delete <strong>{deleteConfirm.transaction.description}</strong>?</p>
+                <p>
+                  Are you sure you want to delete{" "}
+                  <strong>{deleteConfirm.transaction.description || deleteConfirm.transaction.category}</strong>?
+                </p>
                 <div className="popup-actions">
                   <button className="delete-btn" onClick={confirmDelete}>Confirm</button>
                   <button className="add-button" onClick={() => setDeleteConfirm(null)}>Cancel</button>
@@ -292,12 +295,16 @@ function Transactions() {
             </div>
           )}
 
+          {/* Budgets */}
           <div className="budgets-section">
             <div className="section-header">
               <h3>Budgets</h3>
               <button
                 className="add-button"
-                onClick={() => setShowBudgetForm(true)}
+                onClick={() => {
+                  setEditBudget(null);
+                  setShowBudgetForm(true);
+                }}
               >
                 + Add Budget
               </button>
@@ -306,20 +313,14 @@ function Transactions() {
             {budgets.length > 0 ? (
               <table>
                 <thead>
-                  <tr>
-                    <th>Category</th>
-                    <th>Spent</th>
-                    <th>Limit</th>
-                    <th>Remaining</th>
-                    <th>Actions</th>
-                  </tr>
+                  <tr><th>Category</th><th>Spent</th><th>Limit</th><th>Remaining</th><th>Actions</th></tr>
                 </thead>
                 <tbody>
                   {budgets.map((b, idx) => (
                     <tr key={b.budgetid || `budget-${idx}`}>
                       <td>{b.category}</td>
                       <td>${(b.spent ?? 0).toFixed(2)}</td>
-                      <td>${(b.limit ?? 0).toFixed(2)}</td>
+                      <td>${(b.limit ?? b.limit_amount ?? 0).toFixed(2)}</td>
                       <td style={{ color: (b.remaining ?? 0) < 0 ? "red" : "green" }}>
                         {(b.remaining ?? 0) >= 0
                           ? `$${(b.remaining ?? 0).toFixed(2)}`
@@ -329,15 +330,15 @@ function Transactions() {
                         <button
                           className="edit-btn"
                           onClick={() => {
-                            setShowBudgetForm(true);
                             setEditBudget(b);
+                            setShowBudgetForm(true);
                           }}
                         >
                           Edit
                         </button>
                         <button
                           className="delete-btn"
-                          onClick={() => handleDeleteBudget(b)}
+                          onClick={() => handleDeleteClick(b, "budget")}
                         >
                           Delete
                         </button>
@@ -345,28 +346,20 @@ function Transactions() {
                     </tr>
                   ))}
                 </tbody>
-              </table>) : (
+              </table>
+            ) : (
               <p>No budgets set for this month.</p>
             )}
 
             {showBudgetForm && (
-
               <BudgetForm
                 userId={user.userID}
-                onClose={() => setShowBudgetForm(false)}
-                onSubmit={(createdBudget) => {
-                  const limit = parseFloat(createdBudget.limit_amount);
-                  setBudgets((prev) => [
-                    ...prev,
-                    {
-                      ...createdBudget,
-                      limit,
-                      spent: 0,
-                      remaining: limit
-                    }
-                  ]);
+                budget={editBudget}
+                onClose={() => { setShowBudgetForm(false); setEditBudget(null); }}
+                onSubmit={() => {
                   fetchBudgets(user.userID, selectedMonth, selectedYear);
                   setShowBudgetForm(false);
+                  setEditBudget(null);
                 }}
               />
             )}

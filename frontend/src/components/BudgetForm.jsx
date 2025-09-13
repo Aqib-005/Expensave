@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import config from "./config.json";
-//import "../styles/budgetForm.css";
 
 const categories = [
   "Groceries",
@@ -12,11 +11,20 @@ const categories = [
   "Other",
 ];
 
-function BudgetForm({ userId, onClose, onSubmit }) {
+function BudgetForm({ userId, budget, onClose, onSubmit }) {
+  const API_URL = config.API_URL;
   const [category, setCategory] = useState(categories[0]);
   const [limit, setLimit] = useState("");
   const [period, setPeriod] = useState("monthly");
-  const API_URL = config.API_URL;
+
+  // If editing, prefill the form with budget values
+  useEffect(() => {
+    if (budget) {
+      setCategory(budget.category || categories[0]);
+      setLimit(budget.limit_amount || budget.limit || "");
+      setPeriod(budget.period || "monthly");
+    }
+  }, [budget]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,21 +37,30 @@ function BudgetForm({ userId, onClose, onSubmit }) {
       .toISOString()
       .split("T")[0];
 
-    const newBudget = {
+    const payload = {
       user_id: userId,
       category,
       limit_amount: parseFloat(limit),
-      period: "monthly",
-      start_date: startDate,
-      end_date: endDate,
+      period,
+      start_date: budget?.start_date || startDate,
+      end_date: budget?.end_date || endDate,
     };
 
     try {
-      const res = await fetch(`${API_URL}/budgets`, {
-        method: "POST",
+      let url = `${API_URL}/budgets`;
+      let method = "POST";
+
+      if (budget) {
+        // Editing an existing budget
+        url = `${API_URL}/budgets/${budget.budgetid}`;
+        method = "PUT";
+      }
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(newBudget),
+        body: JSON.stringify(payload),
       });
 
       const savedBudget = await res.json();
@@ -57,7 +74,7 @@ function BudgetForm({ userId, onClose, onSubmit }) {
   return (
     <div className="popup-overlay">
       <div className="popup-form">
-        <h3>Add Budget</h3>
+        <h3>{budget ? "Edit Budget" : "Add Budget"}</h3>
         <form onSubmit={handleSubmit}>
           <label>Category</label>
           <select
@@ -85,8 +102,12 @@ function BudgetForm({ userId, onClose, onSubmit }) {
           </select>
 
           <div className="popup-actions">
-            <button type="submit" className="add-button">Save</button>
-            <button type="button" className="delete-btn" onClick={onClose}>Cancel</button>
+            <button type="submit" className="add-button">
+              {budget ? "Update" : "Save"}
+            </button>
+            <button type="button" className="delete-btn" onClick={onClose}>
+              Cancel
+            </button>
           </div>
         </form>
       </div>
@@ -95,3 +116,4 @@ function BudgetForm({ userId, onClose, onSubmit }) {
 }
 
 export default BudgetForm;
+
