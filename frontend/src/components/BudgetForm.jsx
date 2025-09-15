@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import config from "./config.json";
+import '../styles/budgetForm.css';
 
 const categories = [
   "Groceries",
@@ -102,10 +103,10 @@ function BudgetForm({ userId, budget, onClose, onSubmit }) {
           </select>
 
           <div className="popup-actions">
-            <button type="submit" className="add-button">
+            <button type="submit">
               {budget ? "Update" : "Save"}
             </button>
-            <button type="button" className="delete-btn" onClick={onClose}>
+            <button type="button" onClick={onClose}>
               Cancel
             </button>
           </div>
