@@ -23,7 +23,7 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <a className="nav-logo" href="/">Logo</a>
+      <a className="nav-logo" href="/"><img src="/src/assests/logo.png" alt="logo" className="logo" />Expensave</a>
 
       <div className="nav-right">
         <a className="nav-link" href="/dashboard">Dashboard</a>

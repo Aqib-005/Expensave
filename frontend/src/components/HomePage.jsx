@@ -1,7 +1,6 @@
 import React from "react";
 import "../styles/homepage.css";
 import { useAuth } from "./AuthContext.jsx";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 function HomePage() {
   const { user, loading } = useAuth();
@@ -36,7 +35,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="features">
         <h2>Why Expensave?</h2>
         <div className="feature-grid">
@@ -57,27 +55,6 @@ function HomePage() {
             <p>Stay motivated and reach your savings goals faster.</p>
           </div>
         </div>
-      </section>
-
-      <section className="demo-visual">
-        <h2>See where your money goes</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <PieChart>
-            <Pie
-              data={demoData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-            >
-              {demoData.map((entry, idx) => (
-                <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
-              ))}
-            </Pie>
-          </PieChart>
-        </ResponsiveContainer>
       </section>
     </div>
   );
