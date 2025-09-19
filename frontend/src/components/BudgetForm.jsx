@@ -8,7 +8,6 @@ const categories = [
   "Dining",
   "Rent",
   "Entertainment",
-  "Income",
   "Other",
 ];
 
@@ -17,6 +16,7 @@ function BudgetForm({ userId, budget, onClose, onSubmit }) {
   const [category, setCategory] = useState(categories[0]);
   const [limit, setLimit] = useState("");
   const [period, setPeriod] = useState("monthly");
+  const [isRecurring, setIsRecurring] = useState(false);
 
   // If editing, prefill the form with budget values
   useEffect(() => {
@@ -24,6 +24,7 @@ function BudgetForm({ userId, budget, onClose, onSubmit }) {
       setCategory(budget.category || categories[0]);
       setLimit(budget.limit_amount || budget.limit || "");
       setPeriod(budget.period || "monthly");
+      setIsRecurring(budget.is_recurring || false);
     }
   }, [budget]);
 
@@ -45,6 +46,7 @@ function BudgetForm({ userId, budget, onClose, onSubmit }) {
       period,
       start_date: budget?.start_date || startDate,
       end_date: budget?.end_date || endDate,
+      is_recurring: isRecurring,
     };
 
     try {
@@ -99,8 +101,16 @@ function BudgetForm({ userId, budget, onClose, onSubmit }) {
           <label>Period</label>
           <select value={period} onChange={(e) => setPeriod(e.target.value)}>
             <option value="monthly">Monthly</option>
-            <option value="weekly">Weekly</option>
           </select>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={isRecurring}
+              onChange={(e) => setIsRecurring(e.target.checked)}
+            />
+            Make this budget recurring
+          </label>
 
           <div className="popup-actions">
             <button type="submit">

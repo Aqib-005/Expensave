@@ -4,13 +4,29 @@ import express from "express";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { user_id, category, limit_amount, period, start_date, end_date } =
-    req.body;
+  const {
+    user_id,
+    category,
+    limit_amount,
+    period,
+    start_date,
+    end_date,
+    is_recurring,
+  } = req.body;
   try {
     const result = await pool.query(
-      `INSERT INTO budgets ("userID", category, limit_amount, period, start_date, end_date)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [user_id, category, limit_amount, period, start_date, end_date],
+      `INSERT INTO budgets ("userID", category, limit_amount, period, start_date, end_date, is_recurring)
+   VALUES ($1,$2,$3,$4,$5,$6,$7)
+   RETURNING *`,
+      [
+        user_id,
+        category,
+        limit_amount,
+        period,
+        start_date,
+        end_date,
+        is_recurring,
+      ],
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -69,9 +85,9 @@ router.put("/:id", async (req, res) => {
   try {
     const result = await pool.query(
       `UPDATE budgets
-       SET category=$1, limit_amount=$2, period=$3, start_date=$4, end_date=$5
-       WHERE budgetid=$6 RETURNING *`,
-      [category, limit_amount, period, start_date, end_date, id],
+   SET category=$1, limit_amount=$2, period=$3, start_date=$4, end_date=$5, is_recurring=$6
+   WHERE budgetid=$7 RETURNING *`,
+      [category, limit_amount, period, start_date, end_date, is_recurring, id],
     );
     res.json(result.rows[0]);
   } catch (err) {
