@@ -6,7 +6,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+}
+
+.dashboard-header h2 {
+  text-align: center;
 }
 
 .view-btn {

@@ -115,7 +115,7 @@ function Dashboard({ onViewTransactions }) {
         <>
           <div className="dashboard-header">
             <h2>Dashboard</h2>
-            <a href='/transactions' className='btn btn-outline'>View Transactions </a>
+            <a href='/transactions' className='btn btn-outline'> View Transactions </a>
           </div>
 
           <div className="dashboard-grid">

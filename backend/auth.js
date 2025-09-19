@@ -66,7 +66,7 @@ router.post("/login", async (req, res) => {
 
     // Create JWT
     const token = jwt.sign({ userID: user.userID }, JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "7d",
     });
 
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
@@ -80,7 +80,7 @@ router.post("/login", async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-      maxAge: 60 * 60 * 1000, // 1h
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.json({ message: "Login successful" });
@@ -243,5 +243,87 @@ router.get(
     res.redirect("http://localhost:5173/dashboard");
   },
 );
+
+router.put("/me", authenticateToken, async (req, res) => {
+  const { name, currentPassword, newPassword, confirmPassword } = req.body;
+
+  try {
+    // Get current user
+    const userResult = await pool.query(
+      'SELECT * FROM users WHERE "userID"=$1',
+      [req.user.id],
+    );
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const user = userResult.rows[0];
+
+    // If password change is requested
+    if (currentPassword || newPassword || confirmPassword) {
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        return res
+          .status(400)
+          .json({ error: "All password fields are required" });
+      }
+
+      const match = await bcrypt.compare(currentPassword, user.password_hash);
+      if (!match) {
+        return res.status(400).json({ error: "Current password is incorrect" });
+      }
+
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ error: "New passwords do not match" });
+      }
+
+      // Optionally check password strength again
+      if (!isStrongPassword(newPassword)) {
+        return res.status(400).json({
+          error:
+            "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.",
+        });
+      }
+
+      const newHash = await bcrypt.hash(newPassword, 10);
+
+      const result = await pool.query(
+        'UPDATE users SET name=$1, password_hash=$2 WHERE "userID"=$3 RETURNING "userID", name, email',
+        [name, newHash, req.user.id],
+      );
+
+      return res.json(result.rows[0]);
+    }
+
+    // If only updating name
+    const result = await pool.query(
+      'UPDATE users SET name=$1 WHERE "userID"=$2 RETURNING "userID", name, email',
+      [name, req.user.id],
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Update account error:", err);
+    res.status(500).json({ error: "Failed to update account" });
+  }
+});
+
+// Delete account
+router.delete("/me", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    await pool.query('DELETE FROM sessions WHERE "userID" = $1', [userId]);
+
+    await pool.query('DELETE FROM transactions WHERE "userID" = $1', [userId]);
+    await pool.query('DELETE FROM budgets WHERE "userID" = $1', [userId]);
+
+    await pool.query('DELETE FROM users WHERE "userID" = $1', [userId]);
+
+    res.clearCookie("token");
+    res.json({ message: "Account and all data deleted successfully" });
+  } catch (err) {
+    console.error("DELETE /auth/me error:", err);
+    res.status(500).json({ error: "Failed to delete account" });
+  }
+});
 
 export default router;

@@ -62,8 +62,6 @@ function Signup() {
       if (!response.ok) {
         throw new Error(data.error || "Failed to sign up");
       }
-
-      alert("Signup successful! You can now log in.");
       navigate("/login");
     } catch (err) {
       setError(err.message);

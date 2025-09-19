@@ -18,7 +18,7 @@ function Navbar() {
     });
     setUser(null);
     setMenuOpen(false);
-    //navigate("/");
+    navigate("/");
   };
 
   return (
