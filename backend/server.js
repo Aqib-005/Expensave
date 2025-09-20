@@ -15,7 +15,7 @@ const PORT = 3000;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://Aqib-005.github.io",
     credentials: true,
   }),
 );
