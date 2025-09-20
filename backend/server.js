@@ -15,7 +15,7 @@ const PORT = 3000;
 
 app.use(
   cors({
-    origin: "https://Aqib-005.github.io",
+    origin: "https://aqib-005.github.io",
     credentials: true,
   }),
 );
