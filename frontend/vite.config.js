@@ -8,5 +8,7 @@ export default defineConfig({
     },
   },
   plugins: [react()],
-  base: "/Expensave/",
+  build: {
+    outDir: "dist",
+  },
 });
