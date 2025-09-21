@@ -16,7 +16,7 @@ function App() {
 
   return (
     <AuthProvider>
-      <Router basename="/Expensave">
+      <Router >
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />

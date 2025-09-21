@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 // 🔹 Middleware order matters
 app.use(
   cors({
-    origin: "https://aqib-005.github.io", // frontend on GitHub Pages
+    origin: "https://expensavefront.onrender.com",
     credentials: true, // allow cookies
   }),
 );
