@@ -11,27 +11,27 @@ import ForgotPassword from './components/ForgotPassword.jsx'
 import Transactions from './components/Transactions.jsx'
 import Settings from './components/Settings.jsx'
 
-
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <AuthProvider>
-      <Router>
+      <Router basename="/Expensave">
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
-          <Route path='/signup' element={<Signup />} />
-          <Route path='/resetpassword' element={<ResetPassword />} />
-          <Route path='/forgotpassword' element={<ForgotPassword />} />
-          <Route path='/transactions' element={<Transactions />} />
-          <Route path='/dashboard' element={<Dashboard />} />
-          <Route path='/settings' element={<Settings />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </Router>
     </AuthProvider>
-  );
+  )
 }
 
-export default App;
+export default App
+
