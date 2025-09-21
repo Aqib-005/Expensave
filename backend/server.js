@@ -20,6 +20,17 @@ app.use(
   }),
 );
 
+app.set("trust proxy", 1);
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true, 
+    sameSite: "none" 
+  }
+}));
+
 app.use(passport.initialize());
 
 app.use(express.json());
