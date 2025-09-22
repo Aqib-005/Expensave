@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import passport from "passport";
-import session from "express-session"; // 🔹 missing import
+import session from "express-session";
 
 import authRoutes from "./auth.js";
 import "./passport.js";
@@ -15,7 +15,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🔹 Middleware order matters
 app.use(
   cors({
     origin: "https://expensavefront.onrender.com",

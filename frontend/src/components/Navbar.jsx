@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../styles/navbar.css";
-import { Link, useNavigate } from "react-router-dom";  // ✅ import Link
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext.jsx";
 import { FaUserCircle } from "react-icons/fa";
 import config from "./config.json";

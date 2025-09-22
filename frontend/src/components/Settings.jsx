@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import config from "./config.json";
 import { useAuth } from "./AuthContext.jsx";
 import "../styles/settings.css";
@@ -130,7 +131,7 @@ function Settings() {
         />
 
         <div className="forgot-password-link">
-          <Link href="/forgotpassword">Forgot your password?</Link>
+          <Link to="/forgotpassword">Forgot your password?</Link>
         </div>
 
         <button type="submit" className="btn btn-outline">Update</button>

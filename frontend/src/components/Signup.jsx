@@ -130,19 +130,19 @@ function Signup() {
         </button>
 
         <div className="social-login">
-          <Link className="social-button social-google" href="http://localhost:3000/auth/google">
+          <Link className="social-button social-google" to="https://expensave-a8zd.onrender.com/auth/google">
             <FcGoogle size={20} />
             Google
           </Link>
 
-          <Link className="social-button social-github" href="http://localhost:3000/auth/github">
+          <Link className="social-button social-github" to="https://expensave-a8zd.onrender.com/auth/github">
             <FaGithub size={20} />
             GitHub
           </Link>
         </div>
 
         <div className="old-user">
-          Already have an account? <Link href="/login">Log in </Link>
+          Already have an account? <Link to="/login">Log in </Link>
         </div>
       </form>
     </div>

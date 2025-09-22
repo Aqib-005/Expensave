@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import config from "./config.json";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext.jsx";
 import {
   PieChart,
@@ -115,7 +116,7 @@ function Dashboard({ onViewTransactions }) {
         <>
           <div className="dashboard-header">
             <h2>Dashboard</h2>
-            <Link href='/transactions' className='btn btn-outline'> View Transactions </Link>
+            <Link to='/transactions' className='btn btn-outline'> View Transactions </ Link>
           </div>
 
           <div className="dashboard-grid">

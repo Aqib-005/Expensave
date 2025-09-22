@@ -82,17 +82,17 @@ function Login() {
         <button className="submit" type="submit">Submit</button>
 
         <div className="social-login">
-          <Link className="social-button social-google" href="http://localhost:3000/auth/google">
+          <Link className="social-button social-google" to="http://localhost:3000/auth/google">
             <FcGoogle size={20} /> Google
           </Link>
-          <Link className="social-button social-github" href="http://localhost:3000/auth/github">
+          <Link className="social-button social-github" to="http://localhost:3000/auth/github">
             <FaGithub size={20} /> GitHub
           </Link>
         </div>
 
-        <div className="new-user"><Link href="/forgotpassword">Forgot Password?</Link></div>
+        <div className="new-user"><Link to="/forgotpassword">Forgot Password?</Link></div>
         <div className="new-user">
-          Don't have an account? <Link href="/signup">Sign-Up</Link>
+          Don't have an account? <Link to="/signup">Sign-Up</Link>
         </div>
       </form>
     </div>

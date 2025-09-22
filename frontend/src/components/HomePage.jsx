@@ -1,4 +1,5 @@
 import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/homepage.css";
 import { useAuth } from "./AuthContext.jsx";
 
@@ -23,13 +24,13 @@ function HomePage() {
         <div className="cta-buttons">
           {user ? (
             <>
-              <Link className="btn btn-primary" href="/dashboard">Go to Dashboard</Link>
-              <Link className="btn btn-outline" href="/transactions">View Transactions</Link>
+              <Link className="btn btn-primary" to="/dashboard">Go to Dashboard</Link>
+              <Link className="btn btn-outline" to="/transactions">View Transactions</Link>
             </>
           ) : (
             <>
-              <Link href="/signup" className="btn btn-primary">Get Started</Link>
-              <Link href="/login" className="btn btn-outline">Log In</Link>
+              <Link to="/signup" className="btn btn-primary">Get Started</Link>
+              <Link to="/login" className="btn btn-outline">Log In</Link>
             </>
           )}
         </div>
