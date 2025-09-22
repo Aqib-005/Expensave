@@ -18,7 +18,8 @@ const PORT = process.env.PORT || 3000;
 // 🔹 Middleware order matters
 app.use(
   cors({
-    origin: "https://expensavefront.onrender.com",
+    origin: "http://localhost:5173",
+    //origin: "https://expensavefront.onrender.com",
     credentials: true, // allow cookies
   }),
 );

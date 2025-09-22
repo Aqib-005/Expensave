@@ -23,7 +23,6 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      {/* ✅ use Link instead of <a> */}
       <Link className="nav-logo" to="/">
         <img src="/src/assets/logo.png" alt="logo" className="logo" />
         Expensave

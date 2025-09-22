@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react"; comp
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/signup.css";
 import config from "./config.json";
 import { FcGoogle } from "react-icons/fc";
@@ -130,19 +130,19 @@ function Signup() {
         </button>
 
         <div className="social-login">
-          <a className="social-button social-google" href="http://localhost:3000/auth/google">
+          <Link className="social-button social-google" href="http://localhost:3000/auth/google">
             <FcGoogle size={20} />
             Google
-          </a>
+          </Link>
 
-          <a className="social-button social-github" href="http://localhost:3000/auth/github">
+          <Link className="social-button social-github" href="http://localhost:3000/auth/github">
             <FaGithub size={20} />
             GitHub
-          </a>
+          </Link>
         </div>
 
         <div className="old-user">
-          Already have an account? <a href="/login">Log in </a>
+          Already have an account? <Link href="/login">Log in </Link>
         </div>
       </form>
     </div>

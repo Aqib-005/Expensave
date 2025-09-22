@@ -23,13 +23,13 @@ function HomePage() {
         <div className="cta-buttons">
           {user ? (
             <>
-              <a className="btn btn-primary" href="/dashboard">Go to Dashboard</a>
-              <a className="btn btn-outline" href="/transactions">View Transactions</a>
+              <Link className="btn btn-primary" href="/dashboard">Go to Dashboard</Link>
+              <Link className="btn btn-outline" href="/transactions">View Transactions</Link>
             </>
           ) : (
             <>
-              <a href="/signup" className="btn btn-primary">Get Started</a>
-              <a href="/login" className="btn btn-outline">Log In</a>
+              <Link href="/signup" className="btn btn-primary">Get Started</Link>
+              <Link href="/login" className="btn btn-outline">Log In</Link>
             </>
           )}
         </div>

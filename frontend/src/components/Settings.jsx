@@ -130,7 +130,7 @@ function Settings() {
         />
 
         <div className="forgot-password-link">
-          <a href="/forgotpassword">Forgot your password?</a>
+          <Link href="/forgotpassword">Forgot your password?</Link>
         </div>
 
         <button type="submit" className="btn btn-outline">Update</button>
