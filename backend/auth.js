@@ -149,7 +149,7 @@ router.post("/forgotpassword", async (req, res) => {
       [user.userID, token, expires],
     );
 
-    const resetLink = `http://localhost:5173/resetpassword?token=${token}`;
+    const resetLink = `https://expensavefront.onrender.com/resetpassword?token=${token}`;
 
     await transporter.sendMail({
       from: `"Expensave Support" <${process.env.EMAIL_USER}>`,
@@ -226,7 +226,7 @@ router.get(
       maxAge: 60 * 60 * 1000,
     });
 
-    res.redirect("http://localhost:5173/dashboard");
+    res.redirect("https://expensavefront.onrender.com/dashboard");
   },
 );
 
@@ -240,7 +240,7 @@ router.get(
   passport.authenticate("github", { session: false }),
   (req, res) => {
     res.cookie("token", req.user.jwt, { httpOnly: true });
-    res.redirect("http://localhost:5173/dashboard");
+    res.redirect("https://expensavefront.onrender.com/dashboard");
   },
 );
 
