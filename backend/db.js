@@ -4,14 +4,9 @@ dotenv.config();
 
 const { Pool } = pkg;
 
-const connectionString = process.env.DATABASE_URL.replace(
-  "db.",
-  "db.ipv4.", // 👈 forces IPv4 resolution
-);
-
 const pool = new Pool({
-  connectionString,
-  ssl: { rejectUnauthorized: false },
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }, // Supabase requires SSL
 });
 
 pool.on("error", (err) => {
