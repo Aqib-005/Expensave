@@ -78,9 +78,10 @@ router.post("/login", async (req, res) => {
     // Send as HttpOnly cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: true,
+      sameSite: "none",
+      domain: ".onrender.com",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.json({ message: "Login successful" });
@@ -219,11 +220,12 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   (req, res) => {
-    res.cookie("token", req.user.jwt, {
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-      maxAge: 60 * 60 * 1000,
+      secure: true,
+      sameSite: "none",
+      domain: ".onrender.com", // <— add this
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.redirect("https://expensavefront.onrender.com/dashboard");
@@ -239,7 +241,13 @@ router.get(
   "/github/callback",
   passport.authenticate("github", { session: false }),
   (req, res) => {
-    res.cookie("token", req.user.jwt, { httpOnly: true });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      domain: ".onrender.com", // <— add this
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.redirect("https://expensavefront.onrender.com/dashboard");
   },
 );
