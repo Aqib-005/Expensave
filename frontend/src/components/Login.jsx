@@ -11,7 +11,7 @@ function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const API_URL = config.API_URL;
-  const { setUser } = useAuth();   // ✅ get setUser from context
+  const { setUser } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,17 +32,16 @@ function Login() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to login");
 
-      // ✅ fetch user details right after login
       const meRes = await fetch(`${API_URL}/auth/me`, {
         credentials: "include",
       });
       const userData = await meRes.json();
 
       if (meRes.ok) {
-        setUser(userData);  // update context immediately
+        setUser(userData);
       }
 
-      navigate("/dashboard"); // ✅ typo fixed
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     }
