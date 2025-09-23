@@ -12,6 +12,7 @@ import "./passport.js";
 const router = express.Router();
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+const isProd = process.env.NODE_ENV === "production";
 
 function isStrongPassword(password) {
   const strongRegex =
@@ -78,12 +79,11 @@ router.post("/login", async (req, res) => {
     // Send as HttpOnly cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      domain: ".onrender.com",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      ...(isProd && { domain: ".onrender.com" }),
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-
     res.json({ message: "Login successful" });
   } catch (err) {
     console.error(err);
@@ -220,11 +220,11 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   (req, res) => {
-    res.cookie("token", token, {
+    res.cookie("token", req.user.jwt, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      domain: ".onrender.com", // <— add this
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      ...(isProd && { domain: ".onrender.com" }),
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -241,11 +241,11 @@ router.get(
   "/github/callback",
   passport.authenticate("github", { session: false }),
   (req, res) => {
-    res.cookie("token", token, {
+    res.cookie("token", req.user.jwt, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      domain: ".onrender.com", // <— add this
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      ...(isProd && { domain: ".onrender.com" }),
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.redirect("https://expensavefront.onrender.com/dashboard");
