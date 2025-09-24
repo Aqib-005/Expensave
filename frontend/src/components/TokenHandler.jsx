@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import config from "./config.json";
 
 function TokenHandler({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { setUser } = useAuth();
+  const API_URL = config.API_URL;
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -15,11 +17,14 @@ function TokenHandler({ children }) {
       // Save token in cookie so fetch with credentials works
       document.cookie = `token=${token}; path=/; SameSite=None; Secure`;
 
-      // Fetch user data
-      fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+      // Fetch user data from backend
+      fetch(`${API_URL}/auth/me`, {
         credentials: "include",
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch user");
+          return res.json();
+        })
         .then((user) => {
           setUser(user);
         })
@@ -28,9 +33,10 @@ function TokenHandler({ children }) {
       // Clean token from URL
       navigate(location.pathname, { replace: true });
     }
-  }, [location, navigate, setUser]);
+  }, [location, navigate, setUser, API_URL]);
 
   return children;
 }
 
 export default TokenHandler;
+
