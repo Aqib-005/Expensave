@@ -224,15 +224,10 @@ router.get(
       );
     }
 
-    res.cookie("token", req.user.jwt, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
-      ...(isProd && { domain: ".onrender.com" }),
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    res.redirect("https://expensavefront.onrender.com/dashboard");
+    // Instead of res.cookie, redirect with token
+    res.redirect(
+      `https://expensavefront.onrender.com/dashboard?token=${req.user.jwt}`,
+    );
   },
 );
 
@@ -252,17 +247,12 @@ router.get(
       );
     }
 
-    res.cookie("token", req.user.jwt, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
-      ...(isProd && { domain: ".onrender.com" }),
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    res.redirect("https://expensavefront.onrender.com/dashboard");
+    res.redirect(
+      `https://expensavefront.onrender.com/dashboard?token=${req.user.jwt}`,
+    );
   },
 );
+
 router.put("/me", authenticateToken, async (req, res) => {
   console.log("cookies on /me:", req.cookies);
   const { name, currentPassword, newPassword, confirmPassword } = req.body;
