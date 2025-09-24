@@ -81,10 +81,10 @@ function Login() {
         <button className="submit" type="submit">Submit</button>
 
         <div className="social-login">
-          <a className="social-button social-google" herf="https://expensave-a8zd.onrender.com/auth/google">
+          <a className="social-button social-google" href="https://expensave-a8zd.onrender.com/auth/google">
             <FcGoogle size={20} /> Google
           </a>
-          <a className="social-button social-github" herf="https://expensave-a8zd.onrender.com/auth/github">
+          <a className="social-button social-github" href="https://expensave-a8zd.onrender.com/auth/github">
             <FaGithub size={20} /> GitHub
           </a>
         </div>
