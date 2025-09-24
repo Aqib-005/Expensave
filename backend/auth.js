@@ -217,25 +217,22 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   (req, res) => {
-    try {
-      const jwtToken = req.user?.jwt;
-      if (!jwtToken) {
-        console.error("No jwt on req.user in google callback");
-        return res.status(500).send("Auth error");
-      }
-
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: isProd,
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-
-      res.redirect("https://expensavefront.onrender.com/dashboard");
-    } catch (err) {
-      console.error("Google callback error:", err);
-      res.status(500).send("Internal error");
+    if (!req.user || !req.user.jwt) {
+      console.error("Google callback missing JWT:", req.user);
+      return res.redirect(
+        "https://expensavefront.onrender.com/login?error=oauth_failed",
+      );
     }
+
+    res.cookie("token", req.user.jwt, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      ...(isProd && { domain: ".onrender.com" }),
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.redirect("https://expensavefront.onrender.com/dashboard");
   },
 );
 
@@ -248,28 +245,24 @@ router.get(
   "/github/callback",
   passport.authenticate("github", { session: false }),
   (req, res) => {
-    try {
-      const jwtToken = req.user?.jwt;
-      if (!jwtToken) {
-        console.error("No jwt on req.user in google callback");
-        return res.status(500).send("Auth error");
-      }
-
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: isProd,
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-
-      res.redirect("https://expensavefront.onrender.com/dashboard");
-    } catch (err) {
-      console.error("Google callback error:", err);
-      res.status(500).send("Internal error");
+    if (!req.user || !req.user.jwt) {
+      console.error("GitHub callback missing JWT:", req.user);
+      return res.redirect(
+        "https://expensavefront.onrender.com/login?error=oauth_failed",
+      );
     }
+
+    res.cookie("token", req.user.jwt, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      ...(isProd && { domain: ".onrender.com" }),
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.redirect("https://expensavefront.onrender.com/dashboard");
   },
 );
-
 router.put("/me", authenticateToken, async (req, res) => {
   console.log("cookies on /me:", req.cookies);
   const { name, currentPassword, newPassword, confirmPassword } = req.body;
