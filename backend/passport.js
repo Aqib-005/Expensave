@@ -35,14 +35,18 @@ passport.use(
         }
 
         const token = jwt.sign({ userID: user.userID }, JWT_SECRET, {
-          expiresIn: "1h",
+          expiresIn: "7d",
         });
-        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         await pool.query(
           'INSERT INTO sessions ("userID", token, expires_at) VALUES ($1, $2, $3)',
           [user.userID, token, expiresAt],
         );
+        console.log("OAuth session inserted:", {
+          userId: user.userID,
+          token,
+          expiresAt,
+        });
 
         user.jwt = token;
         done(null, user);
@@ -102,14 +106,18 @@ passport.use(
         }
 
         const token = jwt.sign({ userID: user.userID }, JWT_SECRET, {
-          expiresIn: "1h",
+          expiresIn: "7d",
         });
-        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         await pool.query(
           'INSERT INTO sessions ("userID", token, expires_at) VALUES ($1, $2, $3)',
           [user.userID, token, expiresAt],
         );
+        console.log("OAuth session inserted:", {
+          userId: user.userID,
+          token,
+          expiresAt,
+        });
 
         user.jwt = token;
         done(null, user);
