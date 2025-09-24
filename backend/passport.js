@@ -74,6 +74,7 @@ passport.use(
             },
           });
           const emails = await response.json();
+          // Find primary email
           const primary = emails.find((e) => e.primary && e.verified);
           if (primary) email = primary.email;
         }

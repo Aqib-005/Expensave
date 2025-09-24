@@ -57,15 +57,13 @@ router.post("/login", async (req, res) => {
     const result = await pool.query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
-    if (result.rows.length === 0) {
+    if (result.rows.length === 0)
       return res.status(400).json({ error: "User not found" });
-    }
-    const user = result.rows[0];
 
+    const user = result.rows[0];
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) return res.status(400).json({ error: "Invalid credentials" });
 
-    // Create JWT
     const token = jwt.sign({ userID: user.userID }, JWT_SECRET, {
       expiresIn: "7d",
     });
@@ -76,18 +74,18 @@ router.post("/login", async (req, res) => {
       [user.userID, token, expiresAt],
     );
 
-    // Send as HttpOnly cookie
+    // Robust cookie: DO NOT set domain unless necessary
     res.cookie("token", token, {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? "none" : "lax",
-      ...(isProd && { domain: ".onrender.com" }),
+      sameSite: isProd ? "none" : "lax", // cross-site in prod
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    res.json({ message: "Login successful" });
+
+    return res.json({ message: "Login successful" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Log-in Failed" });
+    console.error("LOGIN ERROR:", err);
+    return res.status(500).json({ error: "Log-in Failed" });
   }
 });
 
@@ -220,15 +218,25 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   (req, res) => {
-    res.cookie("token", req.user.jwt, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
-      ...(isProd && { domain: ".onrender.com" }),
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    try {
+      const jwtToken = req.user?.jwt;
+      if (!jwtToken) {
+        console.error("No jwt on req.user in google callback");
+        return res.status(500).send("Auth error");
+      }
 
-    res.redirect("https://expensavefront.onrender.com/dashboard");
+      res.cookie("token", jwtToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.redirect("https://expensavefront.onrender.com/dashboard");
+    } catch (err) {
+      console.error("Google callback error:", err);
+      res.status(500).send("Internal error");
+    }
   },
 );
 
@@ -241,18 +249,30 @@ router.get(
   "/github/callback",
   passport.authenticate("github", { session: false }),
   (req, res) => {
-    res.cookie("token", req.user.jwt, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
-      ...(isProd && { domain: ".onrender.com" }),
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-    res.redirect("https://expensavefront.onrender.com/dashboard");
+    try {
+      const jwtToken = req.user?.jwt;
+      if (!jwtToken) {
+        console.error("No jwt on req.user in google callback");
+        return res.status(500).send("Auth error");
+      }
+
+      res.cookie("token", jwtToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.redirect("https://expensavefront.onrender.com/dashboard");
+    } catch (err) {
+      console.error("Google callback error:", err);
+      res.status(500).send("Internal error");
+    }
   },
 );
 
 router.put("/me", authenticateToken, async (req, res) => {
+  console.log("cookies on /me:", req.cookies);
   const { name, currentPassword, newPassword, confirmPassword } = req.body;
 
   try {
@@ -297,6 +317,8 @@ router.put("/me", authenticateToken, async (req, res) => {
         'UPDATE users SET name=$1, password_hash=$2 WHERE "userID"=$3 RETURNING "userID", name, email',
         [name, newHash, req.user.id],
       );
+
+      console.log("Set cookie for user", user.userID);
 
       return res.json(result.rows[0]);
     }
