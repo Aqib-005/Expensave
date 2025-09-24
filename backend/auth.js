@@ -74,11 +74,10 @@ router.post("/login", async (req, res) => {
       [user.userID, token, expiresAt],
     );
 
-    // Robust cookie: DO NOT set domain unless necessary
     res.cookie("token", token, {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? "none" : "lax", // cross-site in prod
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -225,10 +224,10 @@ router.get(
         return res.status(500).send("Auth error");
       }
 
-      res.cookie("token", jwtToken, {
+      res.cookie("token", token, {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "none" : "lax",
+        sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
@@ -256,10 +255,10 @@ router.get(
         return res.status(500).send("Auth error");
       }
 
-      res.cookie("token", jwtToken, {
+      res.cookie("token", token, {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "none" : "lax",
+        sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
