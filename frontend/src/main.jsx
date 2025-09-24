@@ -6,8 +6,6 @@ import TokenHandler from './components/TokenHandler.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <TokenHandler>
-      <App />
-    </TokenHandler>
+    <App />
   </StrictMode>,
 )
