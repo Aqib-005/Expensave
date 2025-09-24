@@ -11,26 +11,25 @@ function TokenHandler({ children }) {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const token = params.get("token");
+    const loggedIn = params.get("logged_in");
 
-    if (token) {
-      // Save token in cookie so fetch with credentials works
-      document.cookie = `token=${token}; path=/; SameSite=None; Secure`;
-
-      // Fetch user data from backend
+    if (loggedIn) {
+      // Fetch user data from backend (cookie should already be set by backend)
       fetch(`${API_URL}/auth/me`, {
         credentials: "include",
       })
         .then((res) => {
+          console.log("Fetch /auth/me status:", res.status);
           if (!res.ok) throw new Error("Failed to fetch user");
           return res.json();
         })
         .then((user) => {
+          console.log("Fetched user:", user);
           setUser(user);
         })
         .catch((err) => console.error("Failed to fetch user:", err));
 
-      // Clean token from URL
+      // Clean up query param from URL
       navigate(location.pathname, { replace: true });
     }
   }, [location, navigate, setUser, API_URL]);
