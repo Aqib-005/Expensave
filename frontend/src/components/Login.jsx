@@ -80,13 +80,23 @@ function Login() {
 
         <button className="submit" type="submit">Submit</button>
 
+
         <div className="social-login">
-          <a className="social-button social-google" href="https://expensave-a8zd.onrender.com/auth/google">
+          <button
+            type="button"
+            className="social-button social-google"
+            onClick={() => window.location.href = "https://expensave-a8zd.onrender.com/auth/google"}
+          >
             <FcGoogle size={20} /> Google
-          </a>
-          <a className="social-button social-github" href="https://expensave-a8zd.onrender.com/auth/github">
+          </button>
+
+          <button
+            type="button"
+            className="social-button social-github"
+            onClick={() => window.location.href = "https://expensave-a8zd.onrender.com/auth/github"}
+          >
             <FaGithub size={20} /> GitHub
-          </a>
+          </button>
         </div>
 
         <div className="new-user"><Link to="/forgotpassword">Forgot Password?</Link></div>
