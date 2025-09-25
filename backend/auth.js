@@ -223,17 +223,9 @@ router.get(
         "https://expensavefront.onrender.com/login?error=oauth_failed",
       );
     }
-    res.cookie("token", req.user.jwt, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none", // needed for cross-site requests
-      domain: ".onrender.com", // <-- key point
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-    // Instead of res.cookie, redirect with token
 
     res.redirect(
-      "https://expensavefront.onrender.com/dashboard?logged_in=true",
+      `https://expensavefront.onrender.com/dashboard?token=${req.user.jwt}`,
     );
   },
 );
@@ -254,16 +246,8 @@ router.get(
       );
     }
 
-    res.cookie("token", req.user.jwt, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none", // needed for cross-site requests
-      domain: ".onrender.com", // <-- key point
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
     res.redirect(
-      "https://expensavefront.onrender.com/dashboard?logged_in=true",
+      `https://expensavefront.onrender.com/dashboard?token=${req.user.jwt}`,
     );
   },
 );

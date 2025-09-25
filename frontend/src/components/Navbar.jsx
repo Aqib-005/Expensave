@@ -16,6 +16,7 @@ function Navbar() {
       method: "POST",
       credentials: "include",
     });
+    localStorage.removeItem("auth_token");
     setUser(null);
     setMenuOpen(false);
     navigate("/");
