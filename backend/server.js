@@ -19,7 +19,7 @@ app.use(
   cors({
     origin: "https://expensavefront.onrender.com",
     credentials: true, // allow cookies
-  }),
+  })
 );
 
 app.use(express.json());
@@ -37,11 +37,11 @@ app.use(
       sameSite: "none", // cross-site allowed
       httpOnly: true, // not accessible from JS
     },
-  }),
+  })
 );
 
 app.use(passport.initialize());
-app.use(passport.session()); // 🔹 needed for persistent login sessions
+app.use(passport.session());
 
 // Routes
 app.use("/auth", authRoutes);

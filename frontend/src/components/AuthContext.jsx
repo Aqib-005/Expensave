@@ -35,7 +35,6 @@ export function AuthProvider({ children }) {
     }
   }, [API_URL]);
 
-  // Run once on mount
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);

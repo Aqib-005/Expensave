@@ -41,7 +41,7 @@ router.post("/signup", async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     const result = await pool.query(
       'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING "userID", email',
-      [name, email, hash],
+      [name, email, hash]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -71,7 +71,7 @@ router.post("/login", async (req, res) => {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await pool.query(
       'INSERT INTO sessions ("userID", token, expires_at) VALUES ($1, $2, $3)',
-      [user.userID, token, expiresAt],
+      [user.userID, token, expiresAt]
     );
 
     res.cookie("token", token, {
@@ -121,7 +121,7 @@ router.get("/me", authenticateToken, async (req, res) => {
   try {
     const userResult = await pool.query(
       'SELECT "userID", name, email FROM users WHERE "userID" = $1',
-      [req.user.id],
+      [req.user.id]
     );
     if (userResult.rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
@@ -149,7 +149,7 @@ router.post("/forgotpassword", async (req, res) => {
     // check if user exists
     const userResult = await pool.query(
       "SELECT * FROM users WHERE email = $1",
-      [email],
+      [email]
     );
     if (userResult.rows.length === 0) {
       return res.status(400).json({ error: "User not found" });
@@ -162,7 +162,7 @@ router.post("/forgotpassword", async (req, res) => {
 
     await pool.query(
       "INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)",
-      [user.userID, token, expires],
+      [user.userID, token, expires]
     );
 
     const resetLink = `https://expensavefront.onrender.com/resetpassword?token=${token}`;
@@ -192,7 +192,7 @@ router.post("/resetpassword", async (req, res) => {
 
   const resetResult = await pool.query(
     `SELECT * FROM password_resets WHERE token = $1 AND used = FALSE AND expires_at > NOW()`,
-    [token],
+    [token]
   );
 
   if (!isStrongPassword(password)) {
@@ -228,7 +228,7 @@ router.get(
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
-  }),
+  })
 );
 
 router.get(
@@ -238,19 +238,19 @@ router.get(
     if (!req.user || !req.user.jwt) {
       console.error("Google callback missing JWT:", req.user);
       return res.redirect(
-        "https://expensavefront.onrender.com/login?error=oauth_failed",
+        "https://expensavefront.onrender.com/login?error=oauth_failed"
       );
     }
 
     res.redirect(
-      `https://expensavefront.onrender.com/dashboard?token=${req.user.jwt}`,
+      `https://expensavefront.onrender.com/dashboard?token=${req.user.jwt}`
     );
-  },
+  }
 );
 
 router.get(
   "/github",
-  passport.authenticate("github", { scope: ["user:email"], session: false }),
+  passport.authenticate("github", { scope: ["user:email"], session: false })
 );
 
 router.get(
@@ -260,14 +260,14 @@ router.get(
     if (!req.user || !req.user.jwt) {
       console.error("GitHub callback missing JWT:", req.user);
       return res.redirect(
-        "https://expensavefront.onrender.com/login?error=oauth_failed",
+        "https://expensavefront.onrender.com/login?error=oauth_failed"
       );
     }
 
     res.redirect(
-      `https://expensavefront.onrender.com/dashboard?token=${req.user.jwt}`,
+      `https://expensavefront.onrender.com/dashboard?token=${req.user.jwt}`
     );
-  },
+  }
 );
 
 router.put("/me", authenticateToken, async (req, res) => {
@@ -278,7 +278,7 @@ router.put("/me", authenticateToken, async (req, res) => {
     // Get current user
     const userResult = await pool.query(
       'SELECT * FROM users WHERE "userID"=$1',
-      [req.user.id],
+      [req.user.id]
     );
     if (userResult.rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
@@ -302,7 +302,6 @@ router.put("/me", authenticateToken, async (req, res) => {
         return res.status(400).json({ error: "New passwords do not match" });
       }
 
-      // Optionally check password strength again
       if (!isStrongPassword(newPassword)) {
         return res.status(400).json({
           error:
@@ -314,7 +313,7 @@ router.put("/me", authenticateToken, async (req, res) => {
 
       const result = await pool.query(
         'UPDATE users SET name=$1, password_hash=$2 WHERE "userID"=$3 RETURNING "userID", name, email',
-        [name, newHash, req.user.id],
+        [name, newHash, req.user.id]
       );
 
       console.log("Set cookie for user", user.userID);
@@ -322,10 +321,9 @@ router.put("/me", authenticateToken, async (req, res) => {
       return res.json(result.rows[0]);
     }
 
-    // If only updating name
     const result = await pool.query(
       'UPDATE users SET name=$1 WHERE "userID"=$2 RETURNING "userID", name, email',
-      [name, req.user.id],
+      [name, req.user.id]
     );
 
     res.json(result.rows[0]);

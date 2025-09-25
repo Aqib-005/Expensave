@@ -18,7 +18,6 @@ function BudgetForm({ userId, budget, onClose, onSubmit }) {
   const [period, setPeriod] = useState("monthly");
   const [isRecurring, setIsRecurring] = useState(false);
 
-  // If editing, prefill the form with budget values
   useEffect(() => {
     if (budget) {
       setCategory(budget.category || categories[0]);

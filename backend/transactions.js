@@ -10,7 +10,7 @@ router.post("/", async (req, res) => {
     const result = await pool.query(
       `INSERT INTO transactions ("userID", amount, category, type, description, date, recurring)
        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [user_id, amount, category, type, description, date, recurring || false],
+      [user_id, amount, category, type, description, date, recurring || false]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -25,26 +25,25 @@ async function ensureRecurringTransactions(userId, month, year) {
 
   const existing = await pool.query(
     `SELECT * FROM transactions WHERE "userID"=$1 AND date >= $2 AND date <= $3`,
-    [userId, startDate, endDate],
+    [userId, startDate, endDate]
   );
 
   if (existing.rows.length === 0) {
     const recurring = await pool.query(
       `SELECT * FROM transactions WHERE "userID"=$1 AND recurring=true`,
-      [userId],
+      [userId]
     );
 
     for (let t of recurring.rows) {
       await pool.query(
         `INSERT INTO transactions ("userID", amount, category, type, description, date, recurring)
          VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-        [userId, t.amount, t.category, t.type, t.description, startDate, true],
+        [userId, t.amount, t.category, t.type, t.description, startDate, true]
       );
     }
   }
 }
 
-// Get income for a specific user (optionally filter by month/year)
 router.get("/income/:userId", async (req, res) => {
   const { userId } = req.params;
   const month = parseInt(req.query.month, 10);
@@ -65,7 +64,6 @@ router.get("/income/:userId", async (req, res) => {
     const params = [userId];
 
     if (!Number.isNaN(month) && !Number.isNaN(year)) {
-      // use EXTRACT so we don't rely on string formats
       query += ` AND EXTRACT(MONTH FROM date) = $2 AND EXTRACT(YEAR FROM date) = $3 ORDER BY date DESC`;
       params.push(month, year);
     } else {
@@ -81,7 +79,7 @@ router.get("/income/:userId", async (req, res) => {
   }
 });
 
-// Get expenses for a specific user (optionally filter by month/year)
+// Get expenses for a specific user
 router.get("/expenses/:userId", async (req, res) => {
   const { userId } = req.params;
   const month = parseInt(req.query.month, 10);
@@ -90,7 +88,7 @@ router.get("/expenses/:userId", async (req, res) => {
   try {
     if (month && year) {
       const now = new Date();
-      const currentMonth = now.getMonth() + 1; // 1–12
+      const currentMonth = now.getMonth() + 1;
       const currentYear = now.getFullYear();
 
       if (month === currentMonth && year === currentYear) {
@@ -117,7 +115,7 @@ router.get("/expenses/:userId", async (req, res) => {
   }
 });
 
-// Update transaction 
+// Update transaction
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { amount, category, type, description, date, recurring } = req.body;
@@ -126,7 +124,7 @@ router.put("/:id", async (req, res) => {
       `UPDATE transactions 
        SET amount=$1, category=$2, type=$3, description=$4, date=$5, recurring=$6
        WHERE transactionid=$7 RETURNING *`,
-      [amount, category, type, description, date, recurring || false, id],
+      [amount, category, type, description, date, recurring || false, id]
     );
     res.json(result.rows[0]);
   } catch (err) {

@@ -15,7 +15,6 @@ function HomePage() {
 
   return (
     <div className="homepage">
-      {/* Hero Section */}
       <section className="hero">
         <h1>Welcome {user ? user.username : "to Expensave"} 👋</h1>
         <p className="tagline">

@@ -87,11 +87,9 @@ function Settings() {
       <h2>Account Settings</h2>
 
       <form onSubmit={handleUpdate} className="settings-form">
-        {/* Name */}
         <label>Name</label>
         <input value={name} onChange={(e) => setName(e.target.value)} required />
 
-        {/* Email (read-only) */}
         <label>Email</label>
         <input type="email" value={user?.email || ""} readOnly />
 

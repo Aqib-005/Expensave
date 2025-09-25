@@ -30,7 +30,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <Link className="nav-logo" to="/">
-        <img src="/src/assets/logo.png" alt="logo" className="logo" />
+        <img src="/logo.png" alt="logo" className="logo" />
         Expensave
       </Link>
 
