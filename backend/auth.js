@@ -90,11 +90,29 @@ router.post("/login", async (req, res) => {
 
 //log-out
 router.post("/logout", async (req, res) => {
-  const token = req.cookies.token;
+  let token = null;
+
+  if (req.cookies.token) {
+    token = req.cookies.token;
+  }
+
+  if (!token && req.headers.authorization) {
+    const authHeader = req.headers.authorization;
+    if (authHeader.startsWith("Bearer ")) {
+      token = authHeader.substring(7);
+    }
+  }
+
   if (token) {
     await pool.query("DELETE FROM sessions WHERE token = $1", [token]);
   }
-  res.clearCookie("token");
+
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+
   res.json({ message: "Logged out" });
 });
 

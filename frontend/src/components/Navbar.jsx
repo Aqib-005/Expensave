@@ -11,11 +11,16 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const API_URL = config.API_URL;
 
+
   const handleLogout = async () => {
+    const storedToken = localStorage.getItem("auth_token");
+
     await fetch(`${API_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
+      headers: storedToken ? { Authorization: `Bearer ${storedToken}` } : {},
     });
+
     localStorage.removeItem("auth_token");
     setUser(null);
     setMenuOpen(false);
