@@ -1,6 +1,5 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import config from "./config.json";
-
 
 const AuthContext = createContext();
 
@@ -9,34 +8,42 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const API_URL = config.API_URL;
 
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await fetch(`${API_URL}/auth/me`, {
-          credentials: "include",
-        });
-        if (res.status === 401) {
-          setUser(null);
-        } else if (res.ok) {
-          const data = await res.json();
-          setUser(data);
-        }
-      } catch (err) {
-        console.error("Fetch user error:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
+  const fetchUser = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/auth/me`, {
+        credentials: "include",
+      });
 
+      if (res.status === 401) {
+        setUser(null);
+        return null;
+      }
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch user: ${res.status}`);
+      }
+
+      const data = await res.json();
+      setUser(data);
+      return data;
+    } catch (err) {
+      console.error("Fetch user error:", err);
+      setUser(null);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [API_URL]);
+
+  // Run once on mount
+  useEffect(() => {
     fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   return (
-    <div>
-      <AuthContext.Provider value={{ user, setUser, loading }}>
-        {children}
-      </AuthContext.Provider>
-    </div>
+    <AuthContext.Provider value={{ user, setUser, loading, fetchUser }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 
